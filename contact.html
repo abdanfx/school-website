@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Tentang SMP Tahfizh Quran Fantastis, visi, misi, dan profil sekolah.">
-  <title>SMP Tahfizh Quran Fantastis</title>
+  <meta name="description" content="Hubungi SMP Tahfizh Quran Fantastis melalui WhatsApp, email, telepon, atau kunjungi lokasi sekolah di Bojonggede, Bogor.">
+  <title>Kontak | SMP Tahfizh Quran Fantastis</title>
   <link rel="stylesheet" href="css/style.css">
   <script src="js/script.js" defer></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -21,7 +21,7 @@
         <ul class="nav__list">
             <li><a href="index.html" class="nav__link">Home</a></li>
             <li><a href="about.html" class="nav__link">About</a></li>
-            <li><a href="contact.html" class="nav__link active">Contact</a></li>
+            <li><a href="contact.html" class="nav__link active" aria-current="page">Contact</a></li>
         </ul>
         </nav>
 
@@ -32,6 +32,7 @@
     </div>
     </header>
 
+    <main>
     <!-- PAGE HERO -->
     <section class="page-hero reveal">
     <div class="container">
@@ -65,7 +66,8 @@
 
         <div class="map__embed">
         <!-- Paste iframe here -->
-        <iframe 
+        <iframe
+        title="Lokasi SMP Tahfizh Quran Fantastis di Google Maps"
         src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3964.518714343272!2d106.8127492!3d-6.455764899999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69e94c20fb07b5%3A0x549d1f882a5092aa!2sYayasan%20Qur'an%20Fantastis!5e0!3m2!1sen!2sid!4v1777266022478!5m2!1sen!2sid"
         width="100%"
         height="350"
@@ -105,12 +107,15 @@
 
         <form class="form" id="contactForm">
 
+        <label for="name">Nama Lengkap</label>
         <input type="text" id="name" placeholder="Nama Lengkap">
         <small class="error-message"></small>
 
+        <label for="email">Email</label>
         <input type="email" id="email" placeholder="Email (opsional)">
         <small style="color:#777;">Email tidak wajib diisi</small>
 
+        <label for="message">Pesan</label>
         <textarea id="message" rows="5" placeholder="Pesan"></textarea>
         <small class="error-message"></small>
 
@@ -120,6 +125,7 @@
 
     </div>
     </section>
+    </main>
     
     <!-- FOOTER -->
     <footer class="footer">
