@@ -14,7 +14,8 @@ if (toggle && nav) {
     MOBILE MENU TOGGLE
   ========================= */
   toggle.addEventListener('click', () => {
-    nav.classList.toggle('active');
+    const isOpen = nav.classList.toggle('active');
+    toggle.setAttribute('aria-expanded', String(isOpen));
   });
 
 
@@ -22,22 +23,20 @@ if (toggle && nav) {
   links.forEach(link => {
     link.addEventListener('click', () => {
       nav.classList.remove('active');
+      toggle.setAttribute('aria-expanded', 'false');
     });
   });
 
+  // Close menu when clicking outside
   document.addEventListener('click', (e) => {
     if (!nav.contains(e.target) && !toggle.contains(e.target)) {
       nav.classList.remove('active');
+      toggle.setAttribute('aria-expanded', 'false');
     }
   });
+
 }
 
-// Close menu when clicking outside
-document.addEventListener('click', (e) => {
-  if (!nav.contains(e.target) && !toggle.contains(e.target)) {
-    nav.classList.remove('active');
-  }
-});
 
 /* =========================
    HEADER SCROLL EFFECT
@@ -80,19 +79,23 @@ if (form) {
   const emailInput = document.getElementById('email');
   const messageInput = document.getElementById('message');
 
+  const nameError = document.getElementById('nameError');
+  const emailError = document.getElementById('emailError');
+  const messageError = document.getElementById('messageError');
+
   form.addEventListener('submit', function (e) {
     e.preventDefault();
 
     let isValid = true;
 
     // RESET
-    clearError(nameInput);
-    clearError(emailInput);
-    clearError(messageInput);
+    clearError(nameInput, nameError);
+    clearError(emailInput, emailError);
+    clearError(messageInput, messageError);
 
     // NAME
     if (nameInput.value.trim() === '') {
-      showError(nameInput, 'Nama wajib diisi');
+      showError(nameInput, nameError, 'Nama wajib diisi');
       isValid = false;
     } else {
       showSuccess(nameInput);
@@ -102,7 +105,7 @@ if (form) {
     // EMAIL (OPTIONAL)
     if (emailInput.value.trim() !== '') {
       if (!isEmailValid(emailInput.value)) {
-        showError(emailInput, 'Format email tidak valid');
+        showError(emailInput, emailError, 'Format email tidak valid');
         isValid = false;
       } else {
         showSuccess(emailInput);
@@ -111,7 +114,7 @@ if (form) {
 
     // MESSAGE
     if (messageInput.value.trim() === '') {
-      showError(messageInput, 'Pesan tidak boleh kosong');
+      showError(messageInput, messageError, 'Pesan tidak boleh kosong');
       isValid = false;
     } else {
       showSuccess(messageInput);
@@ -150,20 +153,19 @@ if (isValid) {
     }
   });
 
-  function showError(input, message) {
+  function showError(input, errorElement, message) {
+    input.classList.remove('success');
     input.classList.add('error');
-    const error = input.nextElementSibling;
-    error.textContent = message;
+    errorElement.textContent = message;
+  }
+
+  function clearError(input, errorElement) {
+    input.classList.remove('error', 'success');
+    errorElement.textContent = '';
   }
 
   function showSuccess(input) {
     input.classList.add('success');
-  }
-
-  function clearError(input) {
-    input.classList.remove('error');
-    const error = input.nextElementSibling;
-    error.textContent = '';
   }
 
   function isEmailValid(email) {
