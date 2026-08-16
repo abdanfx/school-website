@@ -684,3 +684,8 @@ blockquote::before {
     font-size: 2rem;
   }
 }
+
+/* Admission */
+.admissions-flow {
+  padding-inline-start: 1.5rem;
+}
