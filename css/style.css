@@ -494,6 +494,11 @@ blockquote::before {
   z-index: -1;
 }
 
+/* ===== ADMISSIONS ===== */
+.admissions-flow {
+  padding-inline-start: 1.5rem;
+}
+
 /* ===== CONTACT & FORMS ===== */
 .form {
   display: grid;
@@ -537,12 +542,11 @@ blockquote::before {
   box-shadow: var(--shadow-md);
 }
 
-/* SCROLL REVEAL ANIMATION */
 /* ===== SCROLL REVEAL ===== */
 .reveal {
   opacity: 0;
   transform: translateY(40px);
-  transition: all 0.8s ease;
+  transition: opacity 0.8s ease, transform 0.8s ease;
 }
 
 .reveal.active {
@@ -550,13 +554,14 @@ blockquote::before {
   transform: translateY(0);
 }
 
-/* FORM VALIDATION ERROR */
-/* FORM ERROR */
-.error {
+/* ===== FORM VALIDATION ===== */
+.form input.error,
+.form textarea.error {
   border-color: red;
 }
 
-.success {
+.form input.success,
+.form textarea.success {
   border-color: var(--primary);
 }
 
@@ -683,9 +688,4 @@ blockquote::before {
   .page-hero__title {
     font-size: 2rem;
   }
-}
-
-/* Admission */
-.admissions-flow {
-  padding-inline-start: 1.5rem;
 }
