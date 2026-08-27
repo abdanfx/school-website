@@ -127,7 +127,7 @@ section {
   padding: var(--section-padding);
 }
 
-section:nth-child(even):not(.hero):not(.cta):not(.page-hero) {
+.section--subtle {
   background-color: var(--bg-subtle);
 }
 
@@ -198,14 +198,6 @@ section:nth-child(even):not(.hero):not(.cta):not(.page-hero) {
 
 .header__logo {
   text-decoration: none;
-}
-
-.header__logo h1 {
-  font-size: 1.25rem;
-  margin-bottom: 0;
-  color: var(--primary);
-  font-weight: 800;
-  letter-spacing: -0.5px;
 }
 
 .nav__list {
