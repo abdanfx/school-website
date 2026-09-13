@@ -5,86 +5,77 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Halaman yang Anda cari tidak ditemukan di website SMP Tahfizh Quran Fantastis.">
   <title>Halaman Tidak Ditemukan | SMP Tahfizh Quran Fantastis</title>
-  <link rel="stylesheet" href="css/style.css">
-  <script src="js/script.js" defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/script.js" defer></script>
 </head>
-<body>
-    <a class="skip-link" href="#main-content">Lewati ke konten utama</a>
-    <header class="header">
+<body class="internal error-page">
+  <a class="skip-link" href="#main-content">Lewati ke konten utama</a>
+  <header class="header header--internal">
     <div class="container header__container">
-        
-        <a href="index.html" class="header__logo">
-          <span class="header__logo-text">SMP TQ Fantastis</span>
-        </a>
-
-        <button
-            class="nav__toggle"
-            type="button"
-            aria-label="Buka navigasi"
-            aria-controls="primary-navigation"
-            aria-expanded="false"
-        >
-            ☰
-        </button>
-
-        <nav class="nav" aria-label="Navigasi utama">
+      <a href="index.html" class="header__logo" aria-label="SMP Tahfizh Quran Fantastis — Beranda">
+        <span class="header__logo-text">SMP Tahfizh<br>Quran Fantastis</span>
+      </a>
+      <button class="nav__toggle" type="button" aria-label="Buka navigasi" aria-controls="primary-navigation" aria-expanded="false"><span aria-hidden="true">☰</span></button>
+      <nav class="nav" aria-label="Navigasi utama">
         <ul class="nav__list" id="primary-navigation">
-            <li><a href="index.html" class="nav__link">Beranda</a></li>
-            <li><a href="about.html" class="nav__link">Tentang</a></li>
-            <li><a href="admissions.html" class="nav__link">Pendaftaran</a></li>
-            <li><a href="contact.html" class="nav__link">Kontak</a></li>
+          <li><a href="index.html" class="nav__link">Beranda</a></li>
+          <li><a href="about.html" class="nav__link">Profil</a></li>
+          <li><a href="index.html#program" class="nav__link">Program</a></li>
+          <li><a href="index.html#kehidupan" class="nav__link">Kehidupan</a></li>
+          <li><a href="admissions.html" class="nav__link">PPDB</a></li>
+          <li><a href="contact.html" class="nav__link">Kontak</a></li>
         </ul>
-        </nav>
-
-        <a href="admissions.html" class="btn btn--primary">Daftar</a>
-
-
+      </nav>
     </div>
-    </header>
+  </header>
 
-    <main id="main-content" tabindex="-1">
-        <section class="page-hero reveal">
-        <div class="container">
-            <h1 class="page-hero__title">404</h1>
-            <p class="page-hero__subtitle">
-            Halaman Tidak Ditemukan
-            </p>
+  <main id="main-content" tabindex="-1">
+    <section class="error-state" aria-labelledby="error-title">
+      <div class="container editorial-grid error-state__grid">
+        <p class="error-state__code" aria-hidden="true">404</p>
+        <div class="error-state__content">
+          <p class="section-label"><span aria-hidden="true">Kesalahan 404</span> Halaman Tidak Ditemukan</p>
+          <h1 id="error-title">Maaf, halaman ini tidak tersedia</h1>
+          <p>Halaman yang Anda cari mungkin telah dipindahkan, dihapus, atau alamat yang dimasukkan tidak tepat.</p>
+          <p>Silakan gunakan salah satu tautan berikut untuk melanjutkan.</p>
+          <div class="actions">
+            <a href="index.html" class="btn btn--light">Kembali ke Beranda <span aria-hidden="true">→</span></a>
+            <a href="contact.html" class="text-link">Kontak <span aria-hidden="true">→</span></a>
+            <a href="admissions.html" class="text-link">Pendaftaran <span aria-hidden="true">→</span></a>
+          </div>
         </div>
-        </section>
+      </div>
+    </section>
+  </main>
 
-        <section class="about reveal section--subtle">
-        <div class="container about__container">
-
-            <div class="about__text">
-            <h2 class="section-title">Maaf, halaman ini tidak tersedia</h2>
-            <p>
-                Halaman yang Anda cari mungkin telah dipindahkan,
-                dihapus, atau alamat yang dimasukkan tidak tepat.
-            </p>
-
-            <p>
-                Silakan gunakan salah satu tautan berikut untuk melanjutkan.
-            </p>
-
-            <a href="index.html" class="btn btn--primary">Kembali ke Beranda</a>
-            <a href="admissions.html" class="btn btn--secondary">Pendaftaran</a>
-            <a href="contact.html" class="btn btn--secondary">Kontak</a>
-            </div>
-
-        </div>
-        </section>
-    </main>
-    
-    <!-- FOOTER -->
-    <footer class="footer">
+  <footer class="footer footer--home">
     <div class="container">
-
-        <p>&copy; 2026 SMP Tahfizh Quran Fantastis</p>
-
+      <div class="editorial-grid footer__grid">
+        <div class="footer__identity">
+          <a class="footer__name" href="index.html">SMP Tahfizh Quran Fantastis</a>
+          <p>Membangun Generasi Qurani dan Melek Teknologi</p>
+          <p>Bagian dari Pondok Pesantren Daarul Quran Fantastis Pusat</p>
+        </div>
+        <nav class="footer__nav" aria-label="Navigasi footer">
+          <a href="about.html">Profil</a>
+          <a href="index.html#program">Program</a>
+          <a href="index.html#kehidupan">Kehidupan</a>
+          <a href="admissions.html">PPDB</a>
+          <a href="contact.html">Kontak</a>
+          <a href="about.html">Informasi</a>
+        </nav>
+        <address class="footer__contact">
+          <a href="https://wa.me/6281315452107" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp 0813-1545-2107">0813-1545-2107</a>
+          <a href="contact.html#lokasi">Bojong Gede, Bogor</a>
+          <a href="https://www.instagram.com/daarulquranfantastis/" target="_blank" rel="noopener noreferrer">Instagram</a>
+          <a href="https://www.youtube.com/@fantastistv2554" target="_blank" rel="noopener noreferrer">Fantastis TV</a>
+        </address>
+      </div>
+      <p class="footer__copyright">&copy; 2026 SMP Tahfizh Quran Fantastis</p>
     </div>
-    </footer>
+  </footer>
 </body>
 </html>

@@ -104,8 +104,9 @@
       });
     }
     window.addEventListener('hashchange', syncSection);
+  }
 
-    const targets = [...document.querySelectorAll('[data-reveal]')];
+  const targets = [...document.querySelectorAll('[data-reveal]')];
     let revealObserver;
     const reveal = (element, immediate = false) => {
       if (immediate && (element.classList.contains('is-pending') || element.classList.contains('is-entering'))) {
@@ -268,7 +269,6 @@
         frame.append(button);
       });
     }
-  }
 })();
 
 // Existing contact-page behavior remains independent of homepage enhancement.

@@ -2,6 +2,8 @@
 
 STRONG PASS — READY FOR HUMAN VISUAL QA
 
+> **SUPERSEDED LOCATION NOTE:** References in this historical report to the previously validated Yayasan/foundation-owner-home location are retained as a record of that execution but are no longer authoritative. The current authoritative school-building destination is defined by [docs/prototype-03-source-of-truth.md](prototype-03-source-of-truth.md).
+
 1. **Preflight result.** Passed on resumption. The implementation path, branch, and baseline were correct. There were no tracked changes, staged changes, conflicts, merge, or rebase states. The only additions were the supplied source document and 49 incoming assets, including all ten selected photographs. Both protected repositories were clean. The 458-line source document was read completely.
 
 2. **Starting branch and commit.** `phase-p03-production-integration` at `d965e1c830514610268b1d350d2342894b6c32b4`. Branch and HEAD remain unchanged.

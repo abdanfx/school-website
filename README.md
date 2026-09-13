@@ -4,9 +4,11 @@ Framework-free production integration: HTML, one shared stylesheet, and deferred
 
 Open `index.html` directly, or serve this directory with an existing static server. The homepage uses the frozen source in [docs/prototype-03-source-of-truth.md](docs/prototype-03-source-of-truth.md), subject to the original execution specification's locked H1 and mandatory desktop archive image.
 
-The original About, Contact, Admissions, and 404 content is retained. Shared typography, navigation disclosure, focus treatment, and form accessibility are updated. The contact form opens the existing WhatsApp destination; it does not send a message itself. Without JavaScript, navigation remains visible and the contact page offers a direct WhatsApp link.
+About, Contact, Admissions, and 404 use the shared Prototype 03 internal-page shell: compact institutional Hero, six-link navigation, editorial content patterns, contextual actions, and the institutional footer. The pages preserve supported school content while replacing their Prototype 01 visual patterns. Contact uses the verified school-building address and Google Maps destination; the deprecated Yayasan/home embed is removed.
 
-M1 adds one-time editorial and photographic reveals, scroll-responsive navigation, precise CTA feedback, and one accessible native photography dialog. Content is visible by default; reduced motion removes spatial animation and stagger while preserving interactions. There is no animation library or continuous animation loop. See [the M1 implementation report](docs/prototype-03-m1-report.md) for architecture, visual regression evidence, and QA scope.
+The contact form opens the verified WhatsApp destination; it does not send a message itself. Without JavaScript, navigation remains visible and the contact page offers a direct WhatsApp link.
+
+M1 adds one-time editorial and photographic reveals, scroll-responsive homepage navigation, precise CTA feedback, and one accessible native photography dialog. Internal pages reuse these primitives at a quieter cadence. Content is visible by default; reduced motion removes spatial animation and stagger while preserving interactions. There is no animation library or continuous animation loop. See [the M1 implementation report](docs/prototype-03-m1-report.md) for the original architecture and homepage regression scope.
 
 ## Assets
 

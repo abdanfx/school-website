@@ -26,6 +26,19 @@ def inspect(browser):
     })()""")
 
 
+def settle_reveals(browser):
+    """Traverse once so full-page review captures represent the settled reading state."""
+    browser.evaluate("""(async () => {
+      for (const target of [...document.querySelectorAll('[data-reveal]')]) {
+        target.scrollIntoView({block:'center',behavior:'instant'});
+        await new Promise(resolve => setTimeout(resolve, 40));
+      }
+      scrollTo({top:0,behavior:'instant'});
+      await new Promise(resolve => setTimeout(resolve, 800));
+      return !document.querySelector('.is-pending,.is-entering');
+    })()""")
+
+
 def preview(width, page):
     browser = Browser()
     try:
@@ -34,6 +47,7 @@ def preview(width, page):
         print(json.dumps(inspect(browser), ensure_ascii=False, indent=2))
         browser.screenshot(OUTPUT / f'{page}-{width}-top.png')
         browser.evaluate("Promise.all([...document.images].filter(e=>e.getClientRects().length).map(e=>{e.loading='eager'; return e.decode().catch(()=>{});})).then(()=>true)")
+        settle_reveals(browser)
         browser.screenshot(OUTPUT / f'{page}-{width}-full.png', full=True)
         print('Runtime exceptions:', [e for e in browser.events if e.get('method') == 'Runtime.exceptionThrown'])
     finally:
@@ -72,13 +86,26 @@ def suite():
                         check(f'Home {width}: left-aligned metric', browser.evaluate("getComputedStyle(document.querySelector('.evidence__metric')).textAlign === 'left' && Math.abs(document.querySelector('.evidence__metric').getBoundingClientRect().left - document.querySelector('.evidence .container').getBoundingClientRect().left) < 1"))
                         check(f'Home {width}: mobile Hero order', browser.evaluate("""(() => {const selectors=['.hero__eyebrow','.hero h1','.hero__tagline','.hero__support','.hero .actions','.hero__image']; const rects=selectors.map(s=>document.querySelector(s).getBoundingClientRect()); return rects.every((r,i)=>i===0 || r.top>=rects[i-1].bottom-1);})()"""))
                         check(f'Home {width}: mobile image payload', layout['images'][0]['src'].endswith('-480.webp'))
+                else:
+                    check(f'{page} {width}: shared internal header and footer',
+                          browser.evaluate("!!document.querySelector('.header--internal') && !!document.querySelector('.footer--home')"))
+                    check(f'{page} {width}: six-link primary navigation',
+                          browser.evaluate("document.querySelectorAll('#primary-navigation .nav__link').length===6"))
+                    if page == 'contact.html':
+                        check(f'Contact {width}: verified location without deprecated embed',
+                              browser.evaluate("!document.querySelector('iframe') && document.querySelector('.location a').href==='https://maps.app.goo.gl/YsTcqxBpNeu3tXBFA?g_st=ac'"))
+                    if page == '404.html':
+                        check(f'404 {width}: primary recovery action',
+                              browser.evaluate("document.querySelector('.error-state .btn--light').getAttribute('href')==='index.html'"))
                 runtime = [e for e in browser.events if e.get('method') == 'Runtime.exceptionThrown']
                 check(f'{page} {width}: no runtime exceptions', not runtime, runtime)
                 errors.extend([e for e in browser.events if e.get('method') == 'Network.loadingFailed'])
-                if width in (390, 1440) and page in ('index.html', 'about.html', 'contact.html'):
+                if width in (390, 1440):
                     browser.screenshot(OUTPUT / f'{page}-{width}-top.png')
                     browser.evaluate("Promise.all([...document.images].filter(e=>e.getClientRects().length).map(e=>{e.loading='eager'; return e.decode().catch(()=>{});})).then(()=>true)")
                     check(f'{page} {width}: visible photos decode', browser.evaluate("[...document.images].filter(e=>e.getClientRects().length).every(e=>e.complete && e.naturalWidth>0)"))
+                    settle_reveals(browser)
+                    check(f'{page} {width}: settled review state', browser.evaluate("!document.querySelector('.is-pending,.is-entering')"))
                     browser.screenshot(OUTPUT / f'{page}-{width}-full.png', full=True)
             finally:
                 browser.close()
@@ -109,9 +136,30 @@ def suite():
         time.sleep(0.1)
         check('Resize synchronizes state', browser.evaluate("document.querySelector('.nav__toggle').getAttribute('aria-expanded')==='false' && getComputedStyle(document.querySelector('.nav__list')).display==='flex'"))
 
+        browser.viewport(390, 844)
+        for page, current in (('about.html', 'about.html'), ('contact.html', 'contact.html'),
+                              ('admissions.html', 'admissions.html')):
+            browser.navigate((ROOT / page).as_uri())
+            check(page + ': current-page navigation state',
+                  browser.evaluate("document.querySelector('.nav__link[aria-current]').getAttribute('href')===" + json.dumps(current)))
+            browser.evaluate("document.querySelector('.nav__toggle').focus()")
+            browser.key('Enter')
+            browser.key('Escape')
+            check(page + ': mobile disclosure Escape and focus return',
+                  browser.evaluate("document.activeElement.matches('.nav__toggle') && document.activeElement.getAttribute('aria-expanded')==='false'"))
+
+        browser.navigate((ROOT / 'about.html').as_uri())
+        browser.evaluate("window.__internalPhoto=document.querySelector('.photo-trigger');__internalPhoto.focus();__internalPhoto.click()")
+        check('About: shared lightbox opens from approved photography',
+              browser.evaluate("document.querySelector('.photo-lightbox').open"))
+        browser.key('Escape')
+        time.sleep(0.2)
+        check('About: shared lightbox closes and returns focus',
+              browser.evaluate("!document.querySelector('.photo-lightbox').open && document.activeElement===__internalPhoto"))
+
         # Equivalent CSS viewport / DPR at 200% on a 1440px display.
         browser.viewport(720, 450, dpr=2)
-        for page in ('index.html', 'about.html', 'contact.html'):
+        for page in ('index.html', 'about.html', 'contact.html', 'admissions.html', '404.html'):
             browser.navigate((ROOT / page).as_uri())
             check(page + ': 200% reflow emulation', browser.evaluate('document.documentElement.scrollWidth <= document.documentElement.clientWidth'))
         browser.viewport(390, 280)
@@ -121,8 +169,10 @@ def suite():
 
         browser.viewport(390, 844, dpr=2)
         browser.call('Emulation.setEmulatedMedia', {'features': [{'name': 'prefers-reduced-motion', 'value': 'reduce'}]})
-        browser.navigate((ROOT / 'index.html').as_uri())
-        check('Reduced motion removes smooth scrolling and transitions', browser.evaluate("getComputedStyle(document.documentElement).scrollBehavior==='auto' && getComputedStyle(document.querySelector('.btn')).transitionDuration==='0s' && [...document.querySelectorAll('section')].every(e=>getComputedStyle(e).opacity==='1')"))
+        for page in ('index.html', 'about.html', 'contact.html', 'admissions.html', '404.html'):
+            browser.navigate((ROOT / page).as_uri())
+            check(page + ': reduced motion makes content immediate and static',
+                  browser.evaluate("getComputedStyle(document.documentElement).scrollBehavior==='auto' && getComputedStyle(document.querySelector('.btn')).transitionDuration==='0s' && !document.querySelector('.is-pending,.is-entering') && [...document.querySelectorAll('section')].every(e=>getComputedStyle(e).opacity==='1') && document.getAnimations().length===0"))
         mobile_browser = Browser()
         try:
             mobile_browser.viewport(390, 844, dpr=2)
@@ -157,7 +207,7 @@ def suite():
 
         # Disable page scripts before navigation. DevTools inspection remains available.
         browser.call('Emulation.setScriptExecutionDisabled', {'value': True})
-        for page in ('index.html', 'about.html', 'contact.html'):
+        for page in ('index.html', 'about.html', 'contact.html', 'admissions.html', '404.html'):
             browser.navigate((ROOT / page).as_uri())
             check(page + ': no-JS navigation and content visible', browser.evaluate("getComputedStyle(document.querySelector('.nav__list')).display!=='none' && [...document.querySelectorAll('section')].every(e=>getComputedStyle(e).opacity==='1')"))
             if page == 'contact.html':
@@ -199,11 +249,13 @@ def audit():
             landmarks = [n['role']['value'] for n in ax if not n.get('ignored') and n.get('role', {}).get('value') in ('banner', 'main', 'navigation', 'contentinfo')]
             entry = {'page': page, 'contrast': contrast, 'metrics': metrics, 'renderedFonts': platform_fonts, 'landmarks': landmarks}
             if page == 'contact.html':
-                browser.evaluate("document.querySelector('iframe').scrollIntoView({behavior:'instant'})")
-                time.sleep(2)
-                entry['mapFrames'] = browser.call('Page.getFrameTree')
-                entry['mapResponses'] = [{'url': e['params']['response']['url'], 'status': e['params']['response']['status']} for e in browser.events if e.get('method') == 'Network.responseReceived' and 'maps' in e['params']['response']['url']]
-                browser.screenshot(OUTPUT / 'contact-map.png')
+                browser.evaluate("document.querySelector('.location').scrollIntoView({behavior:'instant'})")
+                entry['location'] = browser.evaluate("""({
+                  address: document.querySelector('.location__address').textContent.trim().replace(/\s+/g,' '),
+                  mapUrl: document.querySelector('.location .btn').href,
+                  embeddedFrames: document.querySelectorAll('iframe').length
+                })""")
+                browser.screenshot(OUTPUT / 'contact-location.png')
             data.append(entry)
         finally:
             browser.close()

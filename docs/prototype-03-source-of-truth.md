@@ -402,10 +402,15 @@ WhatsApp link:
 `https://wa.me/6281315452107`
 
 Location text:
-`Bojong Gede, Bogor`
+Jl. Bulak Jagal No.94, RT.01/RW.14,<br>
+Rw. Panjang, Kecamatan Bojonggede,<br>
+Kabupaten Bogor, Jawa Barat 16920
 
 Map note:
-Use the existing map implementation that points to the approved Yayasan Qur'an Fantastis / school location configuration already validated in the project.
+The authoritative physical destination is the school building for Pondok Pesantren Daarul Quran Fantastis Pusat:
+https://maps.app.goo.gl/YsTcqxBpNeu3tXBFA?g_st=ac
+
+Do not use the deprecated Yayasan/foundation-owner-home map.
 
 ### Copyright line
 Use the current year dynamically if appropriate.

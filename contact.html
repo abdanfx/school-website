@@ -5,150 +5,151 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Hubungi SMP Tahfizh Quran Fantastis melalui WhatsApp, email, telepon, atau kunjungi lokasi sekolah di Bojonggede, Bogor.">
   <title>Kontak | SMP Tahfizh Quran Fantastis</title>
-  <link rel="stylesheet" href="css/style.css">
-  <script src="js/script.js" defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/script.js" defer></script>
 </head>
-<body>
-    <a class="skip-link" href="#main-content">Lewati ke konten utama</a>
-    <header class="header">
+<body class="internal internal--contact">
+  <a class="skip-link" href="#main-content">Lewati ke konten utama</a>
+  <header class="header header--internal">
     <div class="container header__container">
-        
-        <a href="index.html" class="header__logo">
-          <span class="header__logo-text">SMP TQ Fantastis</span>
-        </a>
-
-        <button
-            class="nav__toggle"
-            type="button"
-            aria-label="Buka navigasi"
-            aria-controls="primary-navigation"
-            aria-expanded="false"
-        >
-            ☰
-        </button>
-
-        <nav class="nav" aria-label="Navigasi utama">
+      <a href="index.html" class="header__logo" aria-label="SMP Tahfizh Quran Fantastis — Beranda">
+        <span class="header__logo-text">SMP Tahfizh<br>Quran Fantastis</span>
+      </a>
+      <button class="nav__toggle" type="button" aria-label="Buka navigasi" aria-controls="primary-navigation" aria-expanded="false"><span aria-hidden="true">☰</span></button>
+      <nav class="nav" aria-label="Navigasi utama">
         <ul class="nav__list" id="primary-navigation">
-            <li><a href="index.html" class="nav__link">Beranda</a></li>
-            <li><a href="about.html" class="nav__link">Tentang</a></li>
-            <li><a href="admissions.html" class="nav__link">Pendaftaran</a></li>
-            <li><a href="contact.html" class="nav__link active" aria-current="page">Kontak</a></li>
+          <li><a href="index.html" class="nav__link">Beranda</a></li>
+          <li><a href="about.html" class="nav__link">Profil</a></li>
+          <li><a href="index.html#program" class="nav__link">Program</a></li>
+          <li><a href="index.html#kehidupan" class="nav__link">Kehidupan</a></li>
+          <li><a href="admissions.html" class="nav__link">PPDB</a></li>
+          <li><a href="contact.html" class="nav__link" aria-current="page">Kontak</a></li>
         </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content" tabindex="-1">
+    <section class="page-hero" aria-labelledby="page-title">
+      <div class="container editorial-grid page-hero__grid">
+        <p class="section-label page-hero__label" data-reveal="editorial" data-hero="a"><span aria-hidden="true">01</span> Kontak Sekolah</p>
+        <div class="page-hero__content">
+          <h1 id="page-title" data-reveal="editorial" data-hero="a">Kontak Kami</h1>
+          <p class="page-hero__subtitle" data-reveal="editorial" data-step="1" data-hero="b">Hubungi kami untuk informasi sekolah, program pendidikan, dan penerimaan peserta didik baru.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="internal-section contact-directory section--warm" aria-labelledby="contact-title">
+      <div class="container editorial-grid contact-directory__grid">
+        <div class="contact-directory__intro" data-reveal="editorial">
+          <p class="section-label"><span aria-hidden="true">02</span> Kanal Utama</p>
+          <h2 id="contact-title">Informasi Kontak</h2>
+          <p>Pilih kanal yang paling sesuai. Untuk jawaban langsung mengenai PPDB dan kunjungan, Anda dapat menghubungi sekolah melalui WhatsApp.</p>
+        </div>
+        <dl class="contact-rows" data-reveal="rule">
+          <div class="contact-row" data-reveal="row" data-step="0">
+            <dt>Telepon / WhatsApp</dt>
+            <dd><a href="https://wa.me/6281315452107" target="_blank" rel="noopener noreferrer">0813-1545-2107 <span aria-hidden="true">↗</span></a></dd>
+          </div>
+          <div class="contact-row" data-reveal="row" data-step="1">
+            <dt>Email</dt>
+            <dd><a href="mailto:smpboardingfantastis2021@gmail.com">smpboardingfantastis2021@gmail.com</a></dd>
+          </div>
+          <div class="contact-row" data-reveal="row" data-step="2">
+            <dt>Alamat sekolah</dt>
+            <dd>Jl. Bulak Jagal No.94, RT.01/RW.14, Rw. Panjang, Kecamatan Bojonggede, Kabupaten Bogor, Jawa Barat 16920</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="internal-section contact-form" aria-labelledby="form-title">
+      <div class="container editorial-grid contact-form__grid">
+        <div class="contact-form__heading" data-reveal="editorial">
+          <p class="section-label"><span aria-hidden="true">03</span> Kirim Pesan</p>
+          <h2 id="form-title">Mulai percakapan dengan sekolah.</h2>
+          <p class="contact-form__intro">Pesan akan disiapkan dan dibuka melalui WhatsApp.</p>
+        </div>
+        <div data-reveal="editorial" data-step="1">
+          <noscript><p><a href="https://wa.me/6281315452107" class="btn btn--primary" target="_blank" rel="noopener noreferrer">Chat via WhatsApp <span aria-hidden="true">↗</span></a></p></noscript>
+          <form class="form" id="contactForm" hidden>
+            <div class="form__field">
+              <label for="name">Nama Lengkap</label>
+              <input type="text" id="name" name="name" autocomplete="name" required aria-describedby="nameError" placeholder="Nama Lengkap">
+              <small class="error-message" id="nameError"></small>
+            </div>
+            <div class="form__field">
+              <label for="email">Email <span>(opsional)</span></label>
+              <input type="email" id="email" name="email" autocomplete="email" aria-describedby="emailHelp emailError" placeholder="nama@email.com">
+              <small class="field-help" id="emailHelp">Email tidak wajib diisi</small>
+              <small class="error-message" id="emailError"></small>
+            </div>
+            <div class="form__field">
+              <label for="message">Pesan</label>
+              <textarea id="message" name="message" rows="6" required aria-describedby="messageError" placeholder="Tuliskan pertanyaan Anda"></textarea>
+              <small class="error-message" id="messageError"></small>
+            </div>
+            <button type="submit" class="btn btn--primary">Kirim Pesan <span aria-hidden="true">↗</span></button>
+            <p id="formStatus" class="form-status" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="internal-section location section--subtle" id="lokasi" aria-labelledby="location-title">
+      <div class="container editorial-grid location__grid">
+        <div data-reveal="editorial">
+          <p class="section-label"><span aria-hidden="true">04</span> Lokasi Sekolah</p>
+          <h2 id="location-title">Pondok Pesantren Daarul Quran Fantastis Pusat</h2>
+        </div>
+        <div class="location__details" data-reveal="editorial" data-step="1">
+          <p class="location__address">Jl. Bulak Jagal No.94, RT.01/RW.14,<br>Rw. Panjang, Kecamatan Bojonggede,<br>Kabupaten Bogor, Jawa Barat 16920</p>
+          <p>Gunakan tautan berikut untuk membuka tujuan bangunan sekolah langsung di Google Maps.</p>
+          <a class="btn btn--secondary" href="https://maps.app.goo.gl/YsTcqxBpNeu3tXBFA?g_st=ac" target="_blank" rel="noopener noreferrer">Buka Google Maps <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="internal-cta" aria-labelledby="contact-cta-title">
+      <div class="container editorial-grid internal-cta__grid">
+        <h2 id="contact-cta-title" data-reveal="editorial">Hubungi Kami Sekarang</h2>
+        <div class="internal-cta__content" data-reveal="editorial" data-step="1">
+          <p>Kami siap membantu Anda memperoleh informasi yang dibutuhkan.</p>
+          <a id="contact-whatsapp" href="https://wa.me/6281315452107" class="btn btn--light" target="_blank" rel="noopener noreferrer">Chat via WhatsApp <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer footer--home">
+    <div class="container">
+      <div class="editorial-grid footer__grid" data-reveal="quiet">
+        <div class="footer__identity">
+          <a class="footer__name" href="index.html">SMP Tahfizh Quran Fantastis</a>
+          <p>Membangun Generasi Qurani dan Melek Teknologi</p>
+          <p>Bagian dari Pondok Pesantren Daarul Quran Fantastis Pusat</p>
+        </div>
+        <nav class="footer__nav" aria-label="Navigasi footer">
+          <a href="about.html">Profil</a>
+          <a href="index.html#program">Program</a>
+          <a href="index.html#kehidupan">Kehidupan</a>
+          <a href="admissions.html">PPDB</a>
+          <a href="contact.html" aria-current="page">Kontak</a>
+          <a href="about.html">Informasi</a>
         </nav>
-
-        <a href="admissions.html" class="btn btn--primary">Daftar</a>
-
-
+        <address class="footer__contact">
+          <a href="https://wa.me/6281315452107" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp 0813-1545-2107">0813-1545-2107</a>
+          <a href="#lokasi">Bojong Gede, Bogor</a>
+          <a href="https://www.instagram.com/daarulquranfantastis/" target="_blank" rel="noopener noreferrer">Instagram</a>
+          <a href="https://www.youtube.com/@fantastistv2554" target="_blank" rel="noopener noreferrer">Fantastis TV</a>
+        </address>
+      </div>
+      <p class="footer__copyright" data-reveal="rule">&copy; 2026 SMP Tahfizh Quran Fantastis</p>
     </div>
-    </header>
-
-    <main id="main-content" tabindex="-1">
-    <!-- PAGE HERO -->
-    <section class="page-hero reveal">
-    <div class="container">
-        <h1 class="page-hero__title">Kontak Kami</h1>
-        <p class="page-hero__subtitle">
-        Hubungi kami untuk informasi lebih lanjut
-        </p>
-    </div>
-    </section>
-
-    <!-- CONTACT INFO -->
-    <section class="contact reveal section--subtle">
-    <div class="container contact__container">
-
-        <div class="contact__info">
-        <h2 class="section-title">Informasi Kontak</h2>
-
-        <p><strong>Alamat:</strong> Jl. Bulak Jagal No.94, RT.01/RW.14, Rw. Panjang, Kecamatan Bojonggede, Kabupaten Bogor, Jawa Barat 16920 </p>
-        <p><strong>Telepon:</strong> 0813-1545-2107</p>
-        <p><strong>Email:</strong> smpboardingfantastis2021@gmail.com</p>
-        </div>
-
-    </div>
-    </section>
-
-    <!-- MAP -->
-    <section class="map reveal" id="lokasi">
-    <div class="container">
-
-        <h2 class="section-title">Lokasi Kami</h2>
-
-        <div class="map__embed">
-        <iframe
-        title="Lokasi SMP Tahfizh Quran Fantastis di Google Maps"
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3964.518714343272!2d106.8127492!3d-6.455764899999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69e94c20fb07b5%3A0x549d1f882a5092aa!2sYayasan%20Qur'an%20Fantastis!5e0!3m2!1sen!2sid!4v1777266022478!5m2!1sen!2sid"
-        width="100%"
-        height="350"
-        style="border:0;"
-        allowfullscreen=""
-        loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade">
-        </iframe>
-        </div>
-
-    </div>
-    </section>
-
-    <!-- WHATSAPP CTA -->
-    <section class="cta reveal">
-    <div class="container cta__container">
-
-        <h2>Hubungi Kami Sekarang</h2>
-        <p>Kami siap membantu Anda</p>
-
-        <a id="contact-whatsapp" href="https://wa.me/6281315452107" class="btn btn--primary" target="_blank" rel="noopener noreferrer">
-        Chat via WhatsApp
-        </a>
-
-    </div>
-    </section>
-
-    <!-- SIMPLE FORM -->
-    <section class="contact-form reveal">
-    <div class="container">
-
-        <h2 class="section-title">Kirim Pesan</h2>
-
-        <p class="contact-form__intro">
-          Pesan akan dikirim melalui WhatsApp
-        </p>
-
-        <noscript><p class="contact-form__intro"><a href="https://wa.me/6281315452107" class="btn btn--primary" target="_blank" rel="noopener noreferrer">Chat via WhatsApp</a></p></noscript>
-        <form class="form" id="contactForm" hidden>
-
-        <label for="name">Nama Lengkap</label>
-        <input type="text" id="name" name="name" autocomplete="name" required aria-describedby="nameError" placeholder="Nama Lengkap">
-        <small class="error-message" id="nameError"></small>
-
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" autocomplete="email" aria-describedby="emailHelp emailError" placeholder="Email (opsional)">
-        <small class="field-help" id="emailHelp">Email tidak wajib diisi</small>
-        <small class="error-message" id="emailError"></small>
-
-        <label for="message">Pesan</label>
-        <textarea id="message" name="message" rows="5" required aria-describedby="messageError" placeholder="Pesan"></textarea>
-        <small class="error-message" id="messageError"></small>
-
-        <button type="submit" class="btn btn--primary">Kirim Pesan</button>
-        <p id="formStatus" class="form-status" role="status" aria-live="polite"></p>
-
-      </form>
-
-    </div>
-    </section>
-    </main>
-    
-    <!-- FOOTER -->
-    <footer class="footer">
-    <div class="container">
-
-        <p>&copy; 2026 SMP Tahfizh Quran Fantastis</p>
-
-    </div>
-    </footer>
+  </footer>
 </body>
 </html>

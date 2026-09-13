@@ -78,16 +78,56 @@ def run():
     check('Hero eager with high priority', home.all('img')[0].get('loading') != 'lazy' and home.all('img')[0].get('fetchpriority') == 'high')
     check('Below-fold lazy and async', all(a.get('loading') == 'lazy' and a.get('decoding') == 'async' for a in home.all('img')[1:]))
 
-    for filename in ('about.html', 'contact.html', 'admissions.html', '404.html'):
-        baseline = subprocess.check_output(['git', 'show', 'd965e1c:' + filename], cwd=ROOT, text=True)
-        before = Document(baseline)
-        # Every original visible text fragment survives; new accessibility help is allowed.
-        after_text = ' '.join(' '.join(pages[filename].words).split())
-        fragments = [' '.join(word.split()) for word in before.words if word.strip()]
-        check(filename + ': original copy preserved', all(fragment in after_text for fragment in fragments))
-        check(filename + ': Maps source unchanged', [a['src'] for a in before.all('iframe')] == [a['src'] for a in pages[filename].all('iframe')])
-        before_links = [a['href'] for a in before.all('a') if a['href'].startswith('https://wa.me/')]
-        check(filename + ': WhatsApp destination preserved', all(link in [a['href'] for a in pages[filename].all('a')] for link in before_links))
+    internal_names = ('about.html', 'contact.html', 'admissions.html', '404.html')
+    for filename in internal_names:
+        page = pages[filename]
+        body_classes = page.all('body')[0].get('class', '').split()
+        header_classes = page.all('header')[0].get('class', '').split()
+        footer_classes = page.all('footer')[0].get('class', '').split()
+        hrefs = [a['href'] for a in page.all('a') if a.get('href')]
+        check(filename + ': shared Prototype 03 shell',
+              'internal' in body_classes and 'header--internal' in header_classes and 'footer--home' in footer_classes)
+        check(filename + ': six-link primary navigation',
+              len([a for a in page.all('a') if 'nav__link' in a.get('class', '').split()]) == 6)
+        check(filename + ': institutional footer destinations',
+              all(link in hrefs for link in ('about.html', 'index.html#program', 'index.html#kehidupan',
+                                             'admissions.html', 'contact.html')))
+        check(filename + ': verified WhatsApp destination',
+              'https://wa.me/6281315452107' in hrefs)
+
+    about_text = ' '.join(' '.join(pages['about.html'].words).split())
+    check('About: supported vision and mission preserved',
+          all(text in about_text for text in (
+              'Menjadi sekolah unggulan dalam mencetak generasi penghafal Al-Qur’an yang cerdas dan berwawasan teknologi.',
+              'Menyelenggarakan pendidikan tahfidz yang berkualitas',
+              'Mengintegrasikan ilmu agama dan teknologi',
+              'Membentuk karakter islami yang kuat')))
+
+    admissions_text = ' '.join(' '.join(pages['admissions.html'].words).split())
+    check('Admissions: cautious operational guidance preserved',
+          all(text in admissions_text for text in (
+              'Hubungi pihak sekolah untuk mendapatkan informasi pendaftaran terbaru.',
+              'Konfirmasikan persyaratan dan dokumen yang perlu disiapkan.',
+              'Ikuti tahapan pendaftaran sesuai arahan dari pihak sekolah.',
+              'Pastikan informasi jadwal dan ketentuan lainnya telah dikonfirmasi.')))
+
+    not_found_text = ' '.join(' '.join(pages['404.html'].words).split())
+    check('404: calm recovery copy and primary action',
+          'Maaf, halaman ini tidak tersedia' in not_found_text and
+          any(a.get('href') == 'index.html' and 'btn--light' in a.get('class', '').split()
+              for a in pages['404.html'].all('a')))
+
+    contact_source = (ROOT / 'contact.html').read_text()
+    contact_hrefs = [a.get('href') for a in pages['contact.html'].all('a')]
+    check('Contact: exact authoritative school Maps destination',
+          'https://maps.app.goo.gl/YsTcqxBpNeu3tXBFA?g_st=ac' in contact_hrefs)
+    check('Contact: exact school-building address',
+          'Jl. Bulak Jagal No.94, RT.01/RW.14, Rw. Panjang, Kecamatan Bojonggede, Kabupaten Bogor, Jawa Barat 16920'
+          in ' '.join(' '.join(pages['contact.html'].words).split()))
+    check('Contact: deprecated Yayasan map fully removed',
+          not pages['contact.html'].all('iframe') and
+          "Yayasan Qur'an Fantastis" not in contact_source and
+          'google.com/maps/embed' not in contact_source)
 
     css = (ROOT / 'css/style.css').read_text()
     js = (ROOT / 'js/script.js').read_text()
