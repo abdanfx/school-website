@@ -7,26 +7,18 @@
   <title>Halaman Tidak Ditemukan | SMP Tahfizh Quran Fantastis</title>
   <link rel="stylesheet" href="css/style.css">
   <script src="js/script.js" defer></script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <a class="skip-link" href="#main-content">Lewati ke konten utama</a>
     <header class="header">
     <div class="container header__container">
         
         <a href="index.html" class="header__logo">
           <span class="header__logo-text">SMP TQ Fantastis</span>
         </a>
-
-        <nav class="nav">
-        <ul class="nav__list" id="primary-navigation">
-            <li><a href="index.html" class="nav__link">Beranda</a></li>
-            <li><a href="about.html" class="nav__link">Tentang</a></li>
-            <li><a href="admissions.html" class="nav__link">Pendaftaran</a></li>
-            <li><a href="contact.html" class="nav__link">Kontak</a></li>
-        </ul>
-        </nav>
-
-        <a href="admissions.html" class="btn btn--primary">Daftar</a>
 
         <button
             class="nav__toggle"
@@ -38,10 +30,22 @@
             ☰
         </button>
 
+        <nav class="nav" aria-label="Navigasi utama">
+        <ul class="nav__list" id="primary-navigation">
+            <li><a href="index.html" class="nav__link">Beranda</a></li>
+            <li><a href="about.html" class="nav__link">Tentang</a></li>
+            <li><a href="admissions.html" class="nav__link">Pendaftaran</a></li>
+            <li><a href="contact.html" class="nav__link">Kontak</a></li>
+        </ul>
+        </nav>
+
+        <a href="admissions.html" class="btn btn--primary">Daftar</a>
+
+
     </div>
     </header>
 
-    <main>
+    <main id="main-content" tabindex="-1">
         <section class="page-hero reveal">
         <div class="container">
             <h1 class="page-hero__title">404</h1>

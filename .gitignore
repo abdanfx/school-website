@@ -1,0 +1,5 @@
+.qa/
+__pycache__/
+
+# Prototype 03 raw source asset staging
+assets/_incoming/

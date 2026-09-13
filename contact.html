@@ -7,26 +7,18 @@
   <title>Kontak | SMP Tahfizh Quran Fantastis</title>
   <link rel="stylesheet" href="css/style.css">
   <script src="js/script.js" defer></script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <a class="skip-link" href="#main-content">Lewati ke konten utama</a>
     <header class="header">
     <div class="container header__container">
         
         <a href="index.html" class="header__logo">
           <span class="header__logo-text">SMP TQ Fantastis</span>
         </a>
-
-        <nav class="nav">
-        <ul class="nav__list" id="primary-navigation">
-            <li><a href="index.html" class="nav__link">Beranda</a></li>
-            <li><a href="about.html" class="nav__link">Tentang</a></li>
-            <li><a href="admissions.html" class="nav__link">Pendaftaran</a></li>
-            <li><a href="contact.html" class="nav__link active" aria-current="page">Kontak</a></li>
-        </ul>
-        </nav>
-
-        <a href="admissions.html" class="btn btn--primary">Daftar</a>
 
         <button
             class="nav__toggle"
@@ -38,10 +30,22 @@
             ☰
         </button>
 
+        <nav class="nav" aria-label="Navigasi utama">
+        <ul class="nav__list" id="primary-navigation">
+            <li><a href="index.html" class="nav__link">Beranda</a></li>
+            <li><a href="about.html" class="nav__link">Tentang</a></li>
+            <li><a href="admissions.html" class="nav__link">Pendaftaran</a></li>
+            <li><a href="contact.html" class="nav__link active" aria-current="page">Kontak</a></li>
+        </ul>
+        </nav>
+
+        <a href="admissions.html" class="btn btn--primary">Daftar</a>
+
+
     </div>
     </header>
 
-    <main>
+    <main id="main-content" tabindex="-1">
     <!-- PAGE HERO -->
     <section class="page-hero reveal">
     <div class="container">
@@ -68,13 +72,12 @@
     </section>
 
     <!-- MAP -->
-    <section class="map reveal">
+    <section class="map reveal" id="lokasi">
     <div class="container">
 
         <h2 class="section-title">Lokasi Kami</h2>
 
         <div class="map__embed">
-        <!-- Paste iframe here -->
         <iframe
         title="Lokasi SMP Tahfizh Quran Fantastis di Google Maps"
         src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3964.518714343272!2d106.8127492!3d-6.455764899999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69e94c20fb07b5%3A0x549d1f882a5092aa!2sYayasan%20Qur'an%20Fantastis!5e0!3m2!1sen!2sid!4v1777266022478!5m2!1sen!2sid"
@@ -97,7 +100,7 @@
         <h2>Hubungi Kami Sekarang</h2>
         <p>Kami siap membantu Anda</p>
 
-        <a href="https://wa.me/6281315452107" class="btn btn--primary" target="_blank">
+        <a id="contact-whatsapp" href="https://wa.me/6281315452107" class="btn btn--primary" target="_blank" rel="noopener noreferrer">
         Chat via WhatsApp
         </a>
 
@@ -110,26 +113,28 @@
 
         <h2 class="section-title">Kirim Pesan</h2>
 
-        <p style="text-align:center; margin-bottom:20px;">
+        <p class="contact-form__intro">
           Pesan akan dikirim melalui WhatsApp
         </p>
 
-        <form class="form" id="contactForm">
+        <noscript><p class="contact-form__intro"><a href="https://wa.me/6281315452107" class="btn btn--primary" target="_blank" rel="noopener noreferrer">Chat via WhatsApp</a></p></noscript>
+        <form class="form" id="contactForm" hidden>
 
         <label for="name">Nama Lengkap</label>
-        <input type="text" id="name" placeholder="Nama Lengkap">
+        <input type="text" id="name" name="name" autocomplete="name" required aria-describedby="nameError" placeholder="Nama Lengkap">
         <small class="error-message" id="nameError"></small>
 
         <label for="email">Email</label>
-        <input type="email" id="email" placeholder="Email (opsional)">
-        <small class="field-help">Email tidak wajib diisi</small>
+        <input type="email" id="email" name="email" autocomplete="email" aria-describedby="emailHelp emailError" placeholder="Email (opsional)">
+        <small class="field-help" id="emailHelp">Email tidak wajib diisi</small>
         <small class="error-message" id="emailError"></small>
 
         <label for="message">Pesan</label>
-        <textarea id="message" rows="5" placeholder="Pesan"></textarea>
+        <textarea id="message" name="message" rows="5" required aria-describedby="messageError" placeholder="Pesan"></textarea>
         <small class="error-message" id="messageError"></small>
 
         <button type="submit" class="btn btn--primary">Kirim Pesan</button>
+        <p id="formStatus" class="form-status" role="status" aria-live="polite"></p>
 
       </form>
 
