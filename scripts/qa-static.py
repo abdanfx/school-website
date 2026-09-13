@@ -91,8 +91,12 @@ def run():
 
     css = (ROOT / 'css/style.css').read_text()
     js = (ROOT / 'js/script.js').read_text()
-    check('No obsolete homepage visual selectors', not re.search(r'\.promo|\.why|\.news|\.programs__card|nth-child|backdrop-filter|#f39c12|Poppins', css))
-    check('Content visible without reveal JS', 'opacity: 0' not in css and 'revealOnScroll' not in js)
+    check('No obsolete homepage visual selectors', not re.search(r'\.promo|\.why|\.news|\.programs__card|nth-child|#f39c12|Poppins', css))
+    # M1 explicitly permits gated reveal opacity and a progressive navigation blur.
+    # The browser suite verifies the actual no-JS computed visibility.
+    check('Future reveals armed only after observer installation',
+          '.motion-ready .is-pending' in css and
+          js.index('revealObserver.observe(element)') < js.index("element.classList.add('is-pending')") < js.index("root.classList.add('motion-ready')"))
     check('Explicit reduced motion', '@media (prefers-reduced-motion: reduce)' in css and 'scroll-behavior: auto' in css)
     check('No heavy scroll listener', "addEventListener('scroll'" not in js)
     manifest = []
