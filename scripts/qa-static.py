@@ -131,7 +131,7 @@ def run():
     check('Exact archive label', 'ARSIP KEGIATAN · 2022' in home_text)
     check('Only approved homepage sections', [a['id'] for a in home.all('section')] ==
           ['hero', 'profil', 'program', 'quran-teknologi', 'capaian-tahfizh', 'kehidupan', 'ppdb'])
-    expected = ['1000534854', '1000512148', '1000160830', '1000520096', '1000163805',
+    expected = ['1000534854', '1000512148', '1000160830', '1000520097', '1000163805',
                 '1000344565', '1000512176', '1000512147', '1000213703', 'IMG-20221202-WA0016']
     check('Exact ten-photo mapping and order', [Path(a['src']).stem.rsplit('-', 1)[0] for a in home.all('img')] == expected)
     check('Hero eager with high priority', home.all('img')[0].get('loading') != 'lazy' and home.all('img')[0].get('fetchpriority') == 'high')
@@ -215,7 +215,8 @@ def run():
           all(value in ignore for value in ('.qa/', '__pycache__/', 'dist/', 'assets/_incoming/')))
     manifest = []
     for stem in expected:
-        source_path = ROOT / 'assets/_incoming' / (stem + '.jpg')
+        source_name = '1000520097(1).jpg' if stem == '1000520097' else stem + '.jpg'
+        source_path = ROOT / 'assets/_incoming' / source_name
         dimensions = subprocess.check_output(['ffprobe', '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height', '-of', 'json', str(source_path)], text=True)
         manifest.append({
             'source': str(source_path.relative_to(ROOT)),
