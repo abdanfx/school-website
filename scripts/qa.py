@@ -75,6 +75,10 @@ def suite():
                 check(f'{page} {width}: content visible', layout['hiddenSections'] == 0)
                 check(f'{page} {width}: single H1', len([h for h in layout['headings'] if h['tag'] == 'H1']) == 1)
                 check(f'{page} {width}: no clipped controls', browser.evaluate("""[...document.querySelectorAll('a,button,input,textarea')].filter(e=>e.getClientRects().length && !e.classList.contains('skip-link')).every(e=>{const r=e.getBoundingClientRect(); return r.left>=-1 && r.right<=document.documentElement.clientWidth+1;})"""))
+                if width in (320, 390):
+                    check(f'{page} {width}: visible targets meet WCAG 2.2 minimum size',
+                          browser.evaluate("""[...document.querySelectorAll('a,button,input,textarea')].filter(e=>e.getClientRects().length && !e.classList.contains('skip-link')).every(e=>{const r=e.getBoundingClientRect();return r.width>=24 && r.height>=24;})"""),
+                          browser.evaluate("""[...document.querySelectorAll('a,button,input,textarea')].filter(e=>e.getClientRects().length && !e.classList.contains('skip-link')).map(e=>{const r=e.getBoundingClientRect();return {text:(e.getAttribute('aria-label')||e.textContent||e.name).trim().slice(0,60),width:r.width,height:r.height}}).filter(e=>e.width<24||e.height<24)"""))
                 if page == 'index.html':
                     check(f'Home {width}: landscape Hero 5:4', abs(layout['hero']['w'] / layout['hero']['h'] - 1.25) < 0.01)
                     check(f'Home {width}: correct life image count', layout['visibleLife'] == (3 if width <= 600 else 4))
@@ -147,6 +151,30 @@ def suite():
             browser.key('Escape')
             check(page + ': mobile disclosure Escape and focus return',
                   browser.evaluate("document.activeElement.matches('.nav__toggle') && document.activeElement.getAttribute('aria-expanded')==='false'"))
+
+        for page in ('index.html', 'about.html', 'contact.html', 'admissions.html', '404.html'):
+            browser.navigate((ROOT / page).as_uri())
+            browser.key('Tab')
+            check(page + ': skip link is first and visibly focused',
+                  browser.evaluate("document.activeElement.matches('.skip-link:focus-visible') && parseFloat(getComputedStyle(document.activeElement).outlineWidth)>=3"))
+            browser.key('Enter')
+            check(page + ': skip link moves focus to main content',
+                  browser.evaluate("document.activeElement.id==='main-content'"))
+
+        browser.navigate((ROOT / 'index.html').as_uri())
+        browser.evaluate("location.hash='profil'")
+        time.sleep(3)
+        check('Homepage fragment navigation settles at requested location',
+              browser.evaluate("location.hash==='#profil' && document.querySelector('.header').dataset.activeSection==='profil'"))
+        browser.evaluate("history.back()")
+        time.sleep(3)
+        check('Homepage fragment history restores previous location',
+              browser.evaluate("location.hash==='' && document.querySelector('.header').dataset.activeSection==='hero'"))
+        browser.evaluate("history.forward()")
+        time.sleep(3)
+        check('Homepage fragment history restores forward location and active state',
+              browser.evaluate("location.hash==='#profil' && document.querySelector('.header').dataset.activeSection==='profil'"),
+              browser.evaluate("({hash:location.hash,active:document.querySelector('.header').dataset.activeSection,scrollY,profileTop:document.querySelector('#profil').getBoundingClientRect().top})"))
 
         browser.navigate((ROOT / 'about.html').as_uri())
         browser.evaluate("window.__internalPhoto=document.querySelector('.photo-trigger');__internalPhoto.focus();__internalPhoto.click()")

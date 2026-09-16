@@ -13,9 +13,14 @@ ROOT = Path(__file__).resolve().parents[1]
 class Document(HTMLParser):
     def __init__(self, source):
         super().__init__(convert_charrefs=True)
+        self.source = source
+        self.declarations = []
         self.elements = []
         self.words = []
         self.feed(source)
+
+    def handle_decl(self, declaration):
+        self.declarations.append(declaration)
 
     def handle_starttag(self, tag, attrs):
         self.elements.append((tag, dict(attrs)))
@@ -32,14 +37,51 @@ def run():
     def check(name, condition):
         results.append({'check': name, 'pass': bool(condition)})
 
-    pages = {p.name: Document(p.read_text()) for p in ROOT.glob('*.html')}
+    page_paths = sorted(ROOT.glob('*.html'))
+    pages = {p.name: Document(p.read_text()) for p in page_paths}
+    expected_pages = {'index.html', 'about.html', 'contact.html', 'admissions.html', '404.html'}
+    check('Exact production page set', set(pages) == expected_pages)
+    titles = []
+    descriptions = []
     for filename, page in pages.items():
         ids = [attrs['id'] for _, attrs in page.elements if 'id' in attrs]
+        titles_found = re.findall(r'<title>(.*?)</title>', page.source, re.I | re.S)
+        description_meta = [attrs for attrs in page.all('meta') if attrs.get('name', '').lower() == 'description']
+        viewport_meta = [attrs for attrs in page.all('meta') if attrs.get('name', '').lower() == 'viewport']
+        charset_meta = [attrs for attrs in page.all('meta') if 'charset' in attrs]
+        headings = [int(tag[1]) for tag, _ in page.elements if re.fullmatch(r'h[1-6]', tag)]
+        labels = {attrs.get('for') for attrs in page.all('label') if attrs.get('for')}
+        controls = [attrs for tag, attrs in page.elements if tag in ('input', 'textarea', 'select') and attrs.get('type') != 'hidden']
+        check(filename + ': HTML5 document shell',
+              any(value.lower() == 'doctype html' for value in page.declarations) and
+              all(len(page.all(tag)) == 1 for tag in ('html', 'head', 'body', 'title')))
+        check(filename + ': charset and viewport metadata',
+              len(charset_meta) == 1 and charset_meta[0].get('charset', '').lower() == 'utf-8' and
+              len(viewport_meta) == 1 and viewport_meta[0].get('content') == 'width=device-width, initial-scale=1.0')
+        check(filename + ': title and meta description',
+              len(titles_found) == 1 and bool(titles_found[0].strip()) and
+              len(description_meta) == 1 and bool(description_meta[0].get('content', '').strip()))
+        titles.extend(value.strip() for value in titles_found)
+        descriptions.extend(attrs['content'].strip() for attrs in description_meta)
         check(filename + ': unique IDs', len(ids) == len(set(ids)))
         check(filename + ': Indonesian language and landmarks',
               page.all('html')[0].get('lang') == 'id' and
               all(len(page.all(tag)) == 1 for tag in ('header', 'main', 'footer', 'h1')))
+        check(filename + ': logical heading order',
+              headings and headings[0] == 1 and not any(current > previous + 1 for previous, current in zip(headings, headings[1:])))
+        check(filename + ': controls have explicit labels',
+              all(control.get('id') in labels for control in controls))
         for tag, attrs in page.elements:
+            if tag == 'a':
+                check(filename + ': link has valid href',
+                      bool(attrs.get('href', '').strip()) and
+                      not attrs.get('href', '').strip().lower().startswith(('javascript:', 'data:')))
+            if tag == 'button':
+                check(filename + ': button has explicit type', attrs.get('type') in ('button', 'submit', 'reset'))
+            for reference_attr in ('aria-controls', 'aria-labelledby', 'aria-describedby'):
+                if attrs.get(reference_attr):
+                    for reference in attrs[reference_attr].split():
+                        check(f'{filename}: {reference_attr} target {reference}', reference in ids)
             for attr in ('href', 'src'):
                 ref = attrs.get(attr)
                 if not ref:
@@ -53,12 +95,29 @@ def run():
                 if url.fragment and target in pages:
                     check(f'{filename}: anchor {ref}', any(a.get('id') == url.fragment for _, a in pages[target].elements))
             if attrs.get('target') == '_blank':
-                check(filename + ': protected external link', 'noopener' in attrs.get('rel', '').split())
+                protections = attrs.get('rel', '').split()
+                check(filename + ': protected external link',
+                      'noopener' in protections and 'noreferrer' in protections)
             if tag == 'img':
                 check(filename + ': image alternative and dimensions', all(attrs.get(k) for k in ('alt', 'width', 'height')))
                 for candidate in attrs.get('srcset', '').split(','):
                     if candidate.strip():
                         check(filename + ': responsive asset ' + candidate.strip(), (ROOT / candidate.split()[0]).is_file())
+
+        metadata = {(attrs.get('property') or attrs.get('name')): attrs.get('content') for attrs in page.all('meta')}
+        if filename == '404.html':
+            check('404: explicit noindex directive', metadata.get('robots') == 'noindex, follow')
+        else:
+            title = titles_found[0].strip()
+            description = description_meta[0]['content'].strip()
+            check(filename + ': hostname-independent social metadata',
+                  metadata.get('og:locale') == 'id_ID' and metadata.get('og:type') == 'website' and
+                  metadata.get('og:title') == title and metadata.get('og:description') == description and
+                  metadata.get('twitter:card') == 'summary' and metadata.get('twitter:title') == title and
+                  metadata.get('twitter:description') == description)
+
+    check('Unique page titles', len(titles) == len(set(titles)) == len(expected_pages))
+    check('Unique page descriptions', len(descriptions) == len(set(descriptions)) == len(expected_pages))
 
     home = pages['index.html']
     home_text = ' '.join(''.join(home.words).split())
@@ -128,6 +187,13 @@ def run():
           not pages['contact.html'].all('iframe') and
           "Yayasan Qur'an Fantastis" not in contact_source and
           'google.com/maps/embed' not in contact_source)
+    production_html = '\n'.join(page.source for page in pages.values())
+    check('Production pages: authoritative Bojonggede spelling',
+          'Bojong Gede' not in production_html and production_html.count('Bojonggede, Bogor') >= len(expected_pages))
+    check('Production pages: no deprecated institution language',
+          "Yayasan Qur'an Fantastis" not in production_html and 'foundation-owner-home' not in production_html)
+    check('Production pages: verified WhatsApp number only',
+          '6281315452107' in production_html and not re.search(r'(?:wa\.me/|WhatsApp\D{0,30})(?!6281315452107|0813-1545-2107)\d{10,15}', production_html))
 
     css = (ROOT / 'css/style.css').read_text()
     js = (ROOT / 'js/script.js').read_text()
@@ -139,6 +205,13 @@ def run():
           js.index('revealObserver.observe(element)') < js.index("element.classList.add('is-pending')") < js.index("root.classList.add('motion-ready')"))
     check('Explicit reduced motion', '@media (prefers-reduced-motion: reduce)' in css and 'scroll-behavior: auto' in css)
     check('No heavy scroll listener', "addEventListener('scroll'" not in js)
+    check('No production debug logging', not re.search(r'\b(?:console\.(?:log|debug)|debugger)\b', js))
+    check('No source maps or editor artifacts',
+          not any(ROOT.rglob('*.map')) and
+          not any(path.name in ('.DS_Store', 'Thumbs.db') or path.suffix in ('.swp', '.swo')
+                  for path in ROOT.rglob('*') if '.git' not in path.parts and '.qa' not in path.parts))
+    ignore = (ROOT / '.gitignore').read_text().splitlines()
+    check('QA/source/cache exclusions', all(value in ignore for value in ('.qa/', '__pycache__/', 'assets/_incoming/')))
     manifest = []
     for stem in expected:
         source_path = ROOT / 'assets/_incoming' / (stem + '.jpg')
