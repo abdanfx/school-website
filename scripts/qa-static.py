@@ -211,7 +211,8 @@ def run():
           not any(path.name in ('.DS_Store', 'Thumbs.db') or path.suffix in ('.swp', '.swo')
                   for path in ROOT.rglob('*') if '.git' not in path.parts and '.qa' not in path.parts))
     ignore = (ROOT / '.gitignore').read_text().splitlines()
-    check('QA/source/cache exclusions', all(value in ignore for value in ('.qa/', '__pycache__/', 'assets/_incoming/')))
+    check('QA/source/build/cache exclusions',
+          all(value in ignore for value in ('.qa/', '__pycache__/', 'dist/', 'assets/_incoming/')))
     manifest = []
     for stem in expected:
         source_path = ROOT / 'assets/_incoming' / (stem + '.jpg')

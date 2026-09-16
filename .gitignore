@@ -1,5 +1,6 @@
 .qa/
 __pycache__/
+dist/
 
 # Prototype 03 raw source asset staging
 assets/_incoming/

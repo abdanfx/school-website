@@ -1,6 +1,6 @@
 # SMP Tahfizh Quran Fantastis — Prototype 03
 
-Framework-free production integration: HTML, one shared stylesheet, and deferred vanilla JavaScript. No package installation or build step is required.
+Framework-free production integration: HTML, one shared stylesheet, and deferred vanilla JavaScript. No package installation is required.
 
 Open `index.html` directly, or serve this directory with an existing static server. The homepage uses the frozen source in [docs/prototype-03-source-of-truth.md](docs/prototype-03-source-of-truth.md), subject to the original execution specification's locked H1 and mandatory desktop archive image.
 
@@ -28,6 +28,17 @@ Source dimensions, crops, hashes, and derivative sizes are documented in [docs/p
 python3 scripts/qa-static.py
 ```
 
+## Production artifact
+
+Cloudflare Pages must publish the generated `dist/` artifact, never the repository root:
+
+```sh
+python3 scripts/build-production.py
+python3 scripts/qa-dist.py
+```
+
+The build discovers the reviewed runtime references, fails if a required source is missing, cleans stale output, and includes only the five pages, shared CSS/JavaScript, referenced Prototype 03 WebP derivatives, and the reviewed Cloudflare `_headers` control. See [the Cloudflare deployment-preparation guide](docs/prototype-03-cloudflare-deployment.md) for exact project settings, preview verification, routing, header policy, deferred domain work, and rollback.
+
 For browser QA, start existing Chrome in a separate terminal from this directory:
 
 ```sh
@@ -48,4 +59,4 @@ The current whole-site production audit, finding severities, and deployment prer
 
 Run browser suites sequentially so each target can receive viewport-observer callbacks without background-tab throttling. The Chrome command declares fine-pointer desktop capabilities; M1 tests explicitly switch to touch emulation for mobile checks. M1 captures in `.qa/m1/` traverse the page before taking settled full-page screenshots and compare geometry against `4d8a330`. Targeted reruns are available with `--geometry`, `--interactions`, or `--accessibility` on `qa-m1.py`; `--port` selects a different local Chrome port. After the baseline snapshot has been created, `--cold-loads` and `--delayed-script` reproduce the load-time comparisons documented in the M1 report.
 
-Hosting configuration, production-domain URL metadata, publishing, and Git commits remain outside this execution. Serve only the five HTML pages, `css/`, `js/`, and referenced production derivatives in `assets/images/p03/`; source photos, unreferenced legacy images, documentation, scripts, QA output, caches, and browser profiles are not required at runtime. Configure the selected static host to serve `404.html` for unknown routes.
+Production-domain URL metadata, publishing, and Git commits remain outside this execution. The prepared Cloudflare Pages configuration uses framework preset None, build command `python3 scripts/build-production.py`, build output directory `dist`, and repository root as the root directory. Source photos, unreferenced legacy images, documentation, scripts, QA output, caches, and browser profiles are excluded from the public artifact.
