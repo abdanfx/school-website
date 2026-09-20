@@ -139,14 +139,15 @@
 /* Clean enrollment close and compact institutional footer. */
 .p04 .ppdb { padding: 3.8rem 0 4.2rem; background: #fff; color: var(--p04-ink); }
 .p04 .ppdb__grid { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 3rem; }
+.p04 .ppdb__content { grid-column: 1; }
 .p04 .ppdb .section-label, .p04 .ppdb .section-label > span { color: var(--p04-green); }
 .p04 .ppdb__kicker { margin: 0 0 0.3rem; color: var(--p04-green); font-size: 0.84rem; font-weight: 700; }
 .p04 .ppdb h2 { margin: 0 0 0.7rem; font-size: clamp(2.25rem, 3vw, 3.3rem); }
 .p04 .ppdb__content > p:not(.section-label):not(.ppdb__kicker) { max-width: 780px; margin: 0 0 0.4rem; color: var(--p04-muted); font-size: 0.84rem; line-height: 1.55; }
-.p04 .ppdb .actions { display: flex; flex-direction: column; align-items: stretch; min-width: 236px; margin: 0; gap: 0.7rem; }
+.p04 .ppdb .actions { grid-column: 2; display: flex; flex-direction: column; align-items: stretch; min-width: 236px; margin: 0; gap: 0.7rem; }
 .p04 .footer--home { padding: 3.4rem 0 1.3rem; background: var(--p04-deep); }
 .p04 .footer__grid { gap: 2rem; }
-.p04 .footer__name { margin-bottom: 0.5rem; font-weight: 700; }
+.p04 .footer__name { display: inline-flex; align-items: center; gap: 0.7rem; margin-bottom: 0.5rem; font-weight: 700; line-height: 1.2; }
 .p04 .footer p { color: #c4d9d0; }
 .p04 .footer__copyright { margin-top: 2rem; }
 
@@ -213,7 +214,7 @@
   .p04 .evidence__copy { grid-column: 1 / -1; padding: 1rem 0 0; border-left: 0; border-top: 1px solid #8db6a8; }
   .p04 .life .section-intro > :first-child, .p04 .life .section-intro > p { grid-column: 1 / -1; }
   .p04 .ppdb__grid { grid-template-columns: 1fr; gap: 1.5rem; }
-  .p04 .ppdb .actions { flex-direction: row; flex-wrap: wrap; }
+  .p04 .ppdb .actions { grid-column: 1; flex-direction: row; flex-wrap: wrap; }
 }
 @media (max-width: 600px) {
   .p04 .hero__eyebrow { font-size: 0.62rem; letter-spacing: 0.09em; }
