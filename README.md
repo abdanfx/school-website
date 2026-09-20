@@ -4,7 +4,7 @@ Framework-free site: HTML, the shared P03 stylesheet, a P04 homepage-only styles
 
 Open `index.html` directly, or serve this directory with an existing static server. The homepage uses approved P03 content, links, photography, and interactions, with a new presentation in `css/p04-home.css`. The corrected `230+` metric means cumulative juz of memorization submitted by students. `docs/p04-reference/` contains untracked local visual specifications and is excluded from the site and production artifact.
 
-About, Contact, Admissions, and 404 use the shared Prototype 03 internal-page shell: compact institutional Hero, six-link navigation, editorial content patterns, contextual actions, and the institutional footer. The pages preserve supported school content while replacing their Prototype 01 visual patterns. Contact uses the verified school-building address and Google Maps destination; the deprecated Yayasan/home embed is removed.
+About, Contact, Admissions, and 404 use the shared Prototype 03 internal-page shell: compact institutional Hero, six-link navigation, editorial content patterns, contextual actions, and the institutional footer. Their surfaces, text, rules, and controls now follow the P04 emerald, white, and pale green palette without changing that layout. Contact uses the verified school-building address and Google Maps destination; the deprecated Yayasan/home embed is removed.
 
 The contact form opens the verified WhatsApp destination; it does not send a message itself. Without JavaScript, navigation remains visible and the contact page offers a direct WhatsApp link.
 
@@ -14,7 +14,7 @@ M1 adds one-time editorial and photographic reveals, scroll-responsive homepage 
 
 The homepage requests only the selected WebP derivatives in `assets/images/p03/`. Approved originals may be kept locally in ignored `assets/_incoming/`; this isolated checkout does not require them for static QA or the production build. Additional older baseline assets have not been substituted into the homepage.
 
-The official school mark is copied without recoloring from `assets/images/WhatsApp_Image_2024-08-17_at_07.25.14-removebg-preview(2).png` to `assets/images/brand/smptqf-logo.png`. The transparent source and the separate white-background JPEG stay outside the production artifact. Headers and footers place the green mark on a small white plate beside the readable school name.
+The official school mark is copied without recoloring from `assets/images/WhatsApp_Image_2024-08-17_at_07.25.14-removebg-preview(2).png` to `assets/images/brand/smptqf-logo.png`. The transparent source and the separate white-background JPEG stay outside the production artifact. Headers and footers place the green mark on a compact circular white backing beside the readable school name.
 
 Optional deterministic regeneration, when the approved originals are available locally, with the existing FFmpeg installation:
 

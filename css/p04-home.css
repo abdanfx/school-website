@@ -43,9 +43,9 @@
 /* Hero photograph shares a single plane with the editorial text. */
 .p04 .hero { position: relative; min-height: 548px; overflow: hidden; background: #fff; color: var(--p04-ink); }
 .p04 .hero__container { position: relative; min-height: 548px; display: flex; align-items: center; width: 100%; max-width: none; padding-inline: max(52px, calc((100% - 1320px) / 2)); }
-.p04 .hero__media { position: absolute; inset: 0 16px 0 39%; width: auto; height: 100%; margin: 0; overflow: hidden; border-radius: 0; }
+.p04 .hero__media { --hero-right-gutter: max(52px, calc((100% - 1320px) / 2)); position: absolute; inset: 0 var(--hero-right-gutter) 0 min(39%, calc(50% - var(--hero-right-gutter) - 2px)); width: auto; height: 100%; margin: 0; overflow: hidden; border-radius: 0; }
 .p04 .hero__image { width: 100%; height: 100%; aspect-ratio: auto; object-fit: cover; object-position: 56% 50%; filter: saturate(0.78); }
-.p04 .hero__media::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, #fff 0%, rgb(255 255 255 / 94%) 7%, rgb(255 255 255 / 54%) 29%, rgb(255 255 255 / 0%) 53%); }
+.p04 .hero__media::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(270deg, #fff 0%, rgb(255 255 255 / 64%) 2%, rgb(255 255 255 / 0%) 8%), linear-gradient(90deg, #fff 0%, rgb(255 255 255 / 94%) 7%, rgb(255 255 255 / 54%) 29%, rgb(255 255 255 / 0%) 53%); }
 .p04 .hero__content { position: relative; z-index: 2; width: min(570px, 53%); padding: 2.3rem 0 3rem; }
 .p04 .hero__eyebrow { color: #416965; font-size: var(--p04-label); font-weight: 700; letter-spacing: 0.12em; margin: 0 0 1.4rem; text-transform: uppercase; }
 .p04 .hero__eyebrow span { padding-inline: 0.35rem; }
@@ -160,7 +160,7 @@
   .p04 .nav__list { gap: 0.9rem; }
   .p04 .hero__content { width: 57%; }
   .p04 .hero h1 { font-size: clamp(2.8rem, 4.8vw, 3.9rem); }
-  .p04 .hero__media { left: 42%; }
+  .p04 .hero__media { --hero-right-gutter: 0px; left: 42%; }
   .p04 .benefit { gap: 0.7rem; padding-inline: 0.6rem; }
   .p04 .benefit__icon { width: 43px; height: 43px; font-size: 1.45rem; }
   .p04 .profile__content { grid-column: 1 / 4; }
@@ -169,6 +169,10 @@
   .p04 .pillars { padding-bottom: 3.85rem; }
   .p04 .technology__grid > .media-frame { grid-column: 1 / 4; }
   .p04 .technology__content { grid-column: 4 / -1; }
+}
+@media (max-width: 1100px) and (min-width: 961px) {
+  .p04 .hero__media { left: 24%; }
+  .p04 .hero__media::after { background: linear-gradient(270deg, #fff 0%, rgb(255 255 255 / 64%) 2%, rgb(255 255 255 / 0%) 8%), linear-gradient(90deg, #fff 0%, #fff 12%, rgb(255 255 255 / 95%) 30%, rgb(255 255 255 / 70%) 53%, rgb(255 255 255 / 0%) 72%); }
 }
 @media (max-width: 960px) and (min-width: 761px) {
   .p04 .header__cta { display: none; }
