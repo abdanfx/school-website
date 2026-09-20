@@ -124,11 +124,19 @@ def main():
             url = urlsplit(reference)
             if url.scheme or url.netloc or reference.startswith('//') or not url.path:
                 continue
-            target = (stylesheet.parent / unquote(url.path))
-            if '..' in target.parts or target not in relative_files:
+            if url.path.startswith('/'):
                 css_references.append(f'{stylesheet}: {reference}')
-            else:
-                referenced.add(target)
+                continue
+            target_absolute = (DIST / stylesheet.parent / unquote(url.path)).resolve()
+            try:
+                target = target_absolute.relative_to(DIST.resolve())
+            except ValueError:
+                css_references.append(f'{stylesheet}: {reference}')
+                continue
+            if target not in relative_files:
+                css_references.append(f'{stylesheet}: {reference}')
+                continue
+            referenced.add(target)
     check('all local CSS references stay inside artifact and resolve', not css_references, css_references)
 
     runtime_files = relative_files - {Path('_headers')}

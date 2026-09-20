@@ -1,8 +1,8 @@
-# SMP Tahfizh Quran Fantastis — Prototype 03
+# SMP Tahfizh Quran Fantastis — Prototype 04
 
-Framework-free production integration: HTML, one shared stylesheet, and deferred vanilla JavaScript. No package installation is required.
+Framework-free site: HTML, the shared P03 stylesheet, a P04 homepage-only stylesheet, and deferred vanilla JavaScript. No package installation is required.
 
-Open `index.html` directly, or serve this directory with an existing static server. The homepage uses the frozen source in [docs/prototype-03-source-of-truth.md](docs/prototype-03-source-of-truth.md), subject to the original execution specification's locked H1 and mandatory desktop archive image.
+Open `index.html` directly, or serve this directory with an existing static server. The homepage uses approved P03 content, links, photography, and interactions, with a new presentation in `css/p04-home.css`. The corrected `230+` metric means cumulative juz of memorization submitted by students. `docs/p04-reference/` contains untracked local visual specifications and is excluded from the site and production artifact.
 
 About, Contact, Admissions, and 404 use the shared Prototype 03 internal-page shell: compact institutional Hero, six-link navigation, editorial content patterns, contextual actions, and the institutional footer. The pages preserve supported school content while replacing their Prototype 01 visual patterns. Contact uses the verified school-building address and Google Maps destination; the deprecated Yayasan/home embed is removed.
 
@@ -12,9 +12,9 @@ M1 adds one-time editorial and photographic reveals, scroll-responsive homepage 
 
 ## Assets
 
-Approved originals remain in `assets/_incoming/`. The homepage requests only the selected derivatives in `assets/images/p03/`. Additional supplied originals and older baseline assets have not been deleted or substituted into the homepage.
+The homepage requests only the selected WebP derivatives in `assets/images/p03/`. Approved originals may be kept locally in ignored `assets/_incoming/`; this isolated checkout does not require them for static QA or the production build. Additional older baseline assets have not been substituted into the homepage.
 
-Optional deterministic regeneration with the existing FFmpeg installation:
+Optional deterministic regeneration, when the approved originals are available locally, with the existing FFmpeg installation:
 
 ```sh
 bash scripts/prepare-images.sh
@@ -37,7 +37,7 @@ python3 scripts/build-production.py
 python3 scripts/qa-dist.py
 ```
 
-The build discovers the reviewed runtime references, fails if a required source is missing, cleans stale output, and includes only the five pages, shared CSS/JavaScript, referenced Prototype 03 WebP derivatives, and the reviewed Cloudflare `_headers` control. See [the Cloudflare deployment-preparation guide](docs/prototype-03-cloudflare-deployment.md) for exact project settings, preview verification, routing, header policy, deferred domain work, and rollback.
+The build discovers the reviewed runtime references, fails if a required source is missing, cleans stale output, and includes only the five pages, both stylesheets, shared JavaScript, referenced Prototype 03 WebP derivatives, and the reviewed Cloudflare `_headers` control. See [the Cloudflare deployment-preparation guide](docs/prototype-03-cloudflare-deployment.md) for project settings, preview verification, routing, header policy, deferred domain work, and rollback.
 
 For browser QA, start existing Chrome in a separate terminal from this directory:
 
@@ -53,10 +53,10 @@ python3 scripts/qa.py --audit
 python3 scripts/qa-m1.py
 ```
 
-The QA utilities use Python's standard library and the existing browser. They intercept form popups for encoding/reset tests; they never send WhatsApp messages. Screenshots and machine-readable results are stored in the ignored `.qa/` directory. See [docs/prototype-03-execution-report.md](docs/prototype-03-execution-report.md) for results and outstanding human checks.
+The QA utilities use Python's standard library and the existing browser. They intercept form popups for encoding/reset tests; they never send WhatsApp messages. Screenshots and machine-readable results are stored in the ignored `.qa/` directory. [The P03 execution report](docs/prototype-03-execution-report.md) remains historical background.
 
-The current whole-site production audit, finding severities, and deployment prerequisites are recorded in [docs/prototype-03-release-readiness.md](docs/prototype-03-release-readiness.md). The strengthened static/browser gates also cover page metadata and semantics, ARIA/label references, external-link protection, authoritative contact details, mobile target sizes, skip links, and settled fragment-history behavior.
+The static and browser gates cover page metadata and semantics, ARIA/label references, external-link protection, authoritative contact details, mobile target sizes, skip links, settled fragment-history behavior, P04 composition, the corrected tahfizh metric, and image integrity. [The P03 release-readiness report](docs/prototype-03-release-readiness.md) documents the baseline before this prototype.
 
-Run browser suites sequentially so each target can receive viewport-observer callbacks without background-tab throttling. The Chrome command declares fine-pointer desktop capabilities; M1 tests explicitly switch to touch emulation for mobile checks. M1 captures in `.qa/m1/` traverse the page before taking settled full-page screenshots and compare geometry against `4d8a330`. Targeted reruns are available with `--geometry`, `--interactions`, or `--accessibility` on `qa-m1.py`; `--port` selects a different local Chrome port. After the baseline snapshot has been created, `--cold-loads` and `--delayed-script` reproduce the load-time comparisons documented in the M1 report.
+Run browser suites sequentially so each target can receive viewport-observer callbacks without background-tab throttling. The Chrome command declares fine-pointer desktop capabilities; M1 tests explicitly switch to touch emulation for mobile checks. P04 captures in `.qa/m1/` traverse the page before taking settled full-page screenshots and check the new composition and approved image mapping. Targeted reruns are available with `--geometry`, `--interactions`, or `--accessibility` on `qa-m1.py`; `--port` selects a different local Chrome port.
 
-Production-domain URL metadata, publishing, and Git commits remain outside this execution. The prepared Cloudflare Pages configuration uses framework preset None, build command `python3 scripts/build-production.py`, build output directory `dist`, and repository root as the root directory. Source photos, unreferenced legacy images, documentation, scripts, QA output, caches, and browser profiles are excluded from the public artifact.
+The prepared Cloudflare Pages configuration uses framework preset None, build command `python3 scripts/build-production.py`, build output directory `dist`, and repository root as the root directory. Source photos, unreferenced legacy images, documentation, scripts, QA output, caches, browser profiles, and local P04 reference images are excluded from the public artifact. This prototype has not been deployed.
