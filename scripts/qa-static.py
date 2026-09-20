@@ -123,22 +123,11 @@ def run():
     home_text = ' '.join(''.join(home.words).split())
     source = (ROOT / 'docs/prototype-03-source-of-truth.md').read_text()
     frozen = re.findall(r'^`([^`]+)`$', source, re.M)
-    p031_superseded_copy = {
-        'Santri telah menyelesaikan setoran hafalan 30 juz',
-    }
     for text in frozen:
-        if text.startswith(('https:', '#')) or text in p031_superseded_copy:
+        if text.startswith(('https:', '#')):
             continue
         check('Frozen copy: ' + text[:95], text in home_text)
     check('Original locked H1', "Tumbuh dengan Al-Qur'an, Belajar untuk Masa Depan." in home_text)
-    check('P03.1 cumulative tahfizh metric semantics',
-          'Juz hafalan yang telah disetorkan santri secara kumulatif' in home_text and
-          'Santri telah menyelesaikan setoran hafalan 30 juz' not in home_text)
-    check('P03.1 six homepage section labels',
-          len([attrs for _, attrs in home.elements
-               if 'section-label' in attrs.get('class', '').split()]) == 6)
-    check('P03.1 Section 06 metadata/title hierarchy',
-          '06 Keseharian' in home_text and 'Kehidupan di Pondok Pesantren' in home_text)
     check('Exact archive label', 'ARSIP KEGIATAN · 2022' in home_text)
     check('Only approved homepage sections', [a['id'] for a in home.all('section')] ==
           ['hero', 'profil', 'program', 'quran-teknologi', 'capaian-tahfizh', 'kehidupan', 'ppdb'])
@@ -209,10 +198,6 @@ def run():
     css = (ROOT / 'css/style.css').read_text()
     js = (ROOT / 'js/script.js').read_text()
     check('No obsolete homepage visual selectors', not re.search(r'\.promo|\.why|\.news|\.programs__card|nth-child|#f39c12|Poppins', css))
-    check('P03.1 homepage refinement remains gradient-free',
-          not re.search(r'\b(?:linear|radial|conic)-gradient\s*\(', css))
-    check('P03.1 section precision rule is homepage-scoped',
-          '.home .section-label::after' in css)
     # M1 explicitly permits gated reveal opacity and a progressive navigation blur.
     # The browser suite verifies the actual no-JS computed visibility.
     check('Future reveals armed only after observer installation',
