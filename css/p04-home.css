@@ -53,7 +53,7 @@
 .p04 .hero__tagline { max-width: 28rem; margin: 0 0 0.8rem; color: var(--p04-green); font-size: 1.2rem; font-weight: 700; line-height: 1.45; }
 .p04 .hero__support { max-width: 33rem; margin: 0 0 1.55rem; color: #435055; font-size: var(--p04-copy); line-height: 1.65; }
 .p04 .hero .actions { gap: 0.85rem; }
-.p04 .hero__note { position: absolute; z-index: 2; right: 1rem; bottom: 1.35rem; display: flex; align-items: center; gap: 0.9rem; width: 285px; padding: 0.9rem 1.1rem; border-radius: 16px; background: #fff; color: var(--p04-ink); box-shadow: 0 12px 25px rgb(6 40 32 / 12%); font-size: var(--p04-small); line-height: 1.5; }
+.p04 .hero__note { position: absolute; z-index: 2; right: 1.5rem; bottom: 1.35rem; display: flex; align-items: center; gap: 0.9rem; width: 285px; padding: 0.9rem 1.1rem; border-radius: 16px; background: #fff; color: var(--p04-ink); box-shadow: 0 12px 25px rgb(6 40 32 / 12%); font-size: var(--p04-small); line-height: 1.5; }
 .p04 .hero__note strong { font-weight: 700; }
 .p04 .hero__note-icon { display: grid; place-items: center; flex: none; width: 40px; height: 40px; border-radius: 50%; background: var(--p04-mint); color: var(--p04-green); font-size: 1.35rem; }
 
@@ -196,7 +196,7 @@
   .p04 .hero h1 { max-width: 15ch; font-size: clamp(2.65rem, 7.2vw, 4rem); }
   .p04 .hero__media { position: relative; inset: auto; width: calc(100% + 48px); height: 360px; margin-inline: -24px; }
   .p04 .hero__media::after { background: linear-gradient(180deg, #fff 0%, transparent 26%); }
-  .p04 .hero__note { right: 1rem; bottom: 1rem; }
+  .p04 .hero__note { right: calc(1rem + 24px); bottom: 1rem; }
   .p04 .benefits__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); padding-block: 1rem; }
   .p04 .benefit:nth-child(2) { border-right: 0; }
   .p04 .benefit { padding: 0.8rem; }
@@ -256,6 +256,7 @@
 @media (max-width: 350px) {
   .p04 .container { width: calc(100% - 36px); }
   .p04 .hero__media { width: calc(100% + 36px); margin-inline: -18px; }
+  .p04 .hero__note { right: calc(1rem + 18px); }
   .p04 .hero h1 { font-size: 2.16rem; }
   .p04 .benefit { padding-inline: 0.25rem; }
   .p04 .benefit strong { font-size: 0.78rem; }
