@@ -80,12 +80,15 @@ def suite():
                           browser.evaluate("""[...document.querySelectorAll('a,button,input,textarea')].filter(e=>e.getClientRects().length && !e.classList.contains('skip-link')).every(e=>{const r=e.getBoundingClientRect();return r.width>=24 && r.height>=24;})"""),
                           browser.evaluate("""[...document.querySelectorAll('a,button,input,textarea')].filter(e=>e.getClientRects().length && !e.classList.contains('skip-link')).map(e=>{const r=e.getBoundingClientRect();return {text:(e.getAttribute('aria-label')||e.textContent||e.name).trim().slice(0,60),width:r.width,height:r.height}}).filter(e=>e.width<24||e.height<24)"""))
                 if page == 'index.html':
-                    check(f'Home {width}: landscape Hero 5:4', abs(layout['hero']['w'] / layout['hero']['h'] - 1.25) < 0.01)
-                    check(f'Home {width}: correct life image count', layout['visibleLife'] == (3 if width <= 600 else 4))
-                    check(f'Home {width}: Profile 4:3', browser.evaluate("Math.abs(document.querySelector('.profile__visual img').width / document.querySelector('.profile__visual img').height - 4/3) < 0.02"))
+                    check(f'Home {width}: P04 benefit strip has four facts',
+                          browser.evaluate("document.querySelectorAll('.benefits .benefit').length===4"))
+                    check(f'Home {width}: four authentic life photos visible', layout['visibleLife'] == 4)
+                    check(f'Home {width}: Profile landscape image', browser.evaluate("document.querySelector('.profile__visual img').width > document.querySelector('.profile__visual img').height"))
                     if width >= 1024:
+                        check(f'Home {width}: Hero text and photo share a plane', browser.evaluate("(() => {const h=document.querySelector('.hero').getBoundingClientRect(),i=document.querySelector('.hero__image').getBoundingClientRect(),t=document.querySelector('.hero h1').getBoundingClientRect();return i.width>h.width*.5&&i.top<=h.top+5&&i.bottom>=h.bottom-5&&t.right>i.left;})()"))
+                        check(f'Home {width}: three photographic program cards', browser.evaluate("document.querySelectorAll('.pillar .media-frame').length===3 && getComputedStyle(document.querySelector('.pillars__grid')).gridTemplateColumns.split(' ').length===3"))
                         depth = next(s['h'] for s in layout['sections'] if s['id'] == 'capaian-tahfizh')
-                        check(f'Home {width}: 420–500px evidence depth', 420 <= depth <= 500, depth)
+                        check(f'Home {width}: compact evidence depth', 300 <= depth <= 450, depth)
                     if width <= 600:
                         check(f'Home {width}: left-aligned metric', browser.evaluate("getComputedStyle(document.querySelector('.evidence__metric')).textAlign === 'left' && Math.abs(document.querySelector('.evidence__metric').getBoundingClientRect().left - document.querySelector('.evidence .container').getBoundingClientRect().left) < 1"))
                         check(f'Home {width}: mobile Hero order', browser.evaluate("""(() => {const selectors=['.hero__eyebrow','.hero h1','.hero__tagline','.hero__support','.hero .actions','.hero__image']; const rects=selectors.map(s=>document.querySelector(s).getBoundingClientRect()); return rects.every((r,i)=>i===0 || r.top>=rects[i-1].bottom-1);})()"""))

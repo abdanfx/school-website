@@ -19,6 +19,7 @@ LEGACY_IMAGES = {
 }
 FORBIDDEN_PARTS = {'docs', 'scripts', '.git', '.qa', '__pycache__', '_incoming'}
 FORBIDDEN_SUFFIXES = {'.jpg', '.jpeg', '.png', '.py', '.pyc', '.md', '.map', '.log', '.tmp', '.swp', '.swo'}
+SCHOOL_LOGO = Path('assets/images/brand/smptqf-logo.png')
 EXPECTED_HEADERS = {
     'X-Content-Type-Options': 'nosniff',
     'Referrer-Policy': 'strict-origin-when-cross-origin',
@@ -90,9 +91,11 @@ def main():
 
     forbidden = []
     for path in relative_files:
-        if FORBIDDEN_PARTS.intersection(path.parts) or path.name in LEGACY_IMAGES or path.suffix.lower() in FORBIDDEN_SUFFIXES:
+        if FORBIDDEN_PARTS.intersection(path.parts) or path.name in LEGACY_IMAGES or (path.suffix.lower() in FORBIDDEN_SUFFIXES and path != SCHOOL_LOGO):
             forbidden.append(path.as_posix())
     check('no development, raw, legacy, or debug files', not forbidden, forbidden)
+    check('only reviewed school logo PNG is published',
+          {path for path in relative_files if path.suffix.lower() == '.png'} == {SCHOOL_LOGO})
 
     documents = {name: Document((DIST / name).read_text(encoding='utf-8')) for name in PAGES}
     referenced = {Path(name) for name in PAGES}
@@ -117,18 +120,26 @@ def main():
     check('all local HTML references stay inside artifact and resolve', not reference_errors, reference_errors)
 
     css_references = []
-    for stylesheet in (path for path in referenced if path.suffix == '.css'):
+    for stylesheet in (path for path in tuple(referenced) if path.suffix == '.css'):
         source = (DIST / stylesheet).read_text(encoding='utf-8')
         for match in re.finditer(r"url\(\s*(['\"]?)(.*?)\1\s*\)", source, re.I):
             reference = match.group(2)
             url = urlsplit(reference)
             if url.scheme or url.netloc or reference.startswith('//') or not url.path:
                 continue
-            target = (stylesheet.parent / unquote(url.path))
-            if '..' in target.parts or target not in relative_files:
+            if url.path.startswith('/'):
                 css_references.append(f'{stylesheet}: {reference}')
-            else:
-                referenced.add(target)
+                continue
+            target_absolute = (DIST / stylesheet.parent / unquote(url.path)).resolve()
+            try:
+                target = target_absolute.relative_to(DIST.resolve())
+            except ValueError:
+                css_references.append(f'{stylesheet}: {reference}')
+                continue
+            if target not in relative_files:
+                css_references.append(f'{stylesheet}: {reference}')
+                continue
+            referenced.add(target)
     check('all local CSS references stay inside artifact and resolve', not css_references, css_references)
 
     runtime_files = relative_files - {Path('_headers')}

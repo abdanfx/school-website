@@ -118,13 +118,26 @@ def run():
 
     check('Unique page titles', len(titles) == len(set(titles)) == len(expected_pages))
     check('Unique page descriptions', len(descriptions) == len(set(descriptions)) == len(expected_pages))
+    logo = ROOT / 'assets/images/brand/smptqf-logo.png'
+    logo_bytes = logo.read_bytes() if logo.is_file() else b''
+    check('Official school logo production copy is a transparent PNG',
+          logo_bytes.startswith(b'\x89PNG\r\n\x1a\n') and logo_bytes[25:26] == b'\x06')
+    check('School identity has official logo in every header and footer',
+          all(len([a for a in page.all('span') if 'brand-logo' in a.get('class', '').split()]) == 2
+              for page in pages.values()))
+    check('Hero decorative signature removed', 'hero__signature' not in pages['index.html'].source)
 
     home = pages['index.html']
     home_text = ' '.join(''.join(home.words).split())
     source = (ROOT / 'docs/prototype-03-source-of-truth.md').read_text()
     frozen = re.findall(r'^`([^`]+)`$', source, re.M)
+    # P04 corrects the metric and selects one approved Profile paragraph for its compact composition.
+    superseded = {
+        'Santri telah menyelesaikan setoran hafalan 30 juz',
+        'Sebagai bagian dari Pondok Pesantren Daarul Quran Fantastis Pusat, sekolah ini menghadirkan suasana belajar yang dekat, terarah, dan membina. Proses pendidikan dirancang untuk menjaga keseimbangan antara pembentukan karakter Islami, penguatan akademik, dan kesiapan menghadapi perkembangan teknologi.'
+    }
     for text in frozen:
-        if text.startswith(('https:', '#')):
+        if text.startswith(('https:', '#')) or text in superseded:
             continue
         check('Frozen copy: ' + text[:95], text in home_text)
     check('Original locked H1', "Tumbuh dengan Al-Qur'an, Belajar untuk Masa Depan." in home_text)
@@ -136,6 +149,22 @@ def run():
     check('Exact ten-photo mapping and order', [Path(a['src']).stem.rsplit('-', 1)[0] for a in home.all('img')] == expected)
     check('Hero eager with high priority', home.all('img')[0].get('loading') != 'lazy' and home.all('img')[0].get('fetchpriority') == 'high')
     check('Below-fold lazy and async', all(a.get('loading') == 'lazy' and a.get('decoding') == 'async' for a in home.all('img')[1:]))
+    check('P04 isolated homepage stylesheet and scope',
+          'p04' in home.all('body')[0].get('class', '').split() and
+          any(a.get('href') == 'css/p04-home.css' for a in home.all('link')) and
+          all('p04-home.css' not in pages[name].source for name in ('about.html', 'contact.html', 'admissions.html', '404.html')))
+    check('P04 truthful tahfizh metric',
+          '230+' in home_text and 'Juz hafalan yang telah disetorkan santri secara kumulatif' in home_text and
+          'Santri telah menyelesaikan setoran hafalan 30 juz' not in home_text and
+          not re.search(r'\b(?:120\+|15\+|30\+|100%)\b', home_text))
+    check('P04 benefit strip is structural, not numbered section',
+          'benefits' in home.source and all(text in home_text for text in (
+              'Berbasis pondok pesantren', 'Fokus pada tahfizh dan adab',
+              'Pembelajaran akademik yang terarah', 'Penguatan karakter dan kemandirian')))
+    check('P04 references excluded from runtime', 'docs/p04-reference/' not in home.source and
+          'docs/p04-reference/' not in (ROOT / 'css/p04-home.css').read_text())
+    check('P04 correct Maps destination',
+          'https://maps.app.goo.gl/YsTcqxBpNeu3tXBFA?g_st=ac' in [a.get('href') for a in home.all('a')])
 
     internal_names = ('about.html', 'contact.html', 'admissions.html', '404.html')
     for filename in internal_names:
@@ -217,14 +246,25 @@ def run():
     for stem in expected:
         source_name = '1000520097(1).jpg' if stem == '1000520097' else stem + '.jpg'
         source_path = ROOT / 'assets/_incoming' / source_name
-        dimensions = subprocess.check_output(['ffprobe', '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height', '-of', 'json', str(source_path)], text=True)
+        derivatives = []
+        for derivative in sorted((ROOT / 'assets/images/p03').glob(stem + '-*.webp')):
+            dimensions = json.loads(subprocess.check_output(['ffprobe', '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height', '-of', 'json', str(derivative)], text=True))['streams'][0]
+            check('Integrity: ' + derivative.name, not derivative.is_symlink() and derivative.stat().st_size > 0 and
+                  dimensions['width'] > 0 and dimensions['height'] > 0)
+            derivatives.append({'file': str(derivative.relative_to(ROOT)), 'bytes': derivative.stat().st_size,
+                                'sha256': hashlib.sha256(derivative.read_bytes()).hexdigest(), **dimensions})
+        check('Responsive derivatives present: ' + stem,
+              all((ROOT / 'assets/images/p03' / f'{stem}-{width}.webp').is_file() for width in (480, 768)))
+        source_details = {}
+        if source_path.is_file():
+            source_details = json.loads(subprocess.check_output(['ffprobe', '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height', '-of', 'json', str(source_path)], text=True))['streams'][0]
         manifest.append({
             'source': str(source_path.relative_to(ROOT)),
-            'sha256': hashlib.sha256(source_path.read_bytes()).hexdigest(),
-            'bytes': source_path.stat().st_size,
-            **json.loads(dimensions)['streams'][0],
-            'derivatives': [{'file': str(p.relative_to(ROOT)), 'bytes': p.stat().st_size}
-                            for p in sorted((ROOT / 'assets/images/p03').glob(stem + '-*.webp'))]
+            'source_present': source_path.is_file(),
+            'sha256': hashlib.sha256(source_path.read_bytes()).hexdigest() if source_path.is_file() else None,
+            'bytes': source_path.stat().st_size if source_path.is_file() else None,
+            **source_details,
+            'derivatives': derivatives
         })
     output = ROOT / '.qa'
     output.mkdir(exist_ok=True)

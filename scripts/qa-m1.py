@@ -1,7 +1,6 @@
 """M1 browser regression checks using the existing local CDP client (port 9333)."""
 import argparse
 import json
-import subprocess
 import time
 from pathlib import Path
 from cdp import Browser as CDPBrowser
@@ -44,45 +43,59 @@ def settle(browser):
 
 
 def geometry():
-    reference = OUTPUT / 'reference'
-    for filename in ('index.html', 'css/style.css', 'js/script.js'):
-        target = reference / filename
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_bytes(subprocess.check_output(['git', 'show', '4d8a330:' + filename], cwd=ROOT))
-    if not (reference / 'assets').exists():
-        (reference / 'assets').symlink_to(ROOT / 'assets', target_is_directory=True)
+    # P04 deliberately rebuilds P03 geometry; test its composition and photo mapping.
+    approved = ['1000534854', '1000512148', '1000160830', '1000520097',
+                '1000163805', '1000344565', '1000512176', '1000512147',
+                '1000213703', 'IMG-20221202-WA0016']
     layouts = {}
     for width in (320, 390, 768, 1024, 1440):
-        pair = []
-        for label, site in (('baseline', reference), ('m1', ROOT)):
-            browser = Browser()
-            try:
-                browser.viewport(width)
-                browser.navigate((site / 'index.html').as_uri())
-                settle(browser)
-                pair.append(browser.evaluate(GEOMETRY))
-                if width in (320, 390, 1440):
-                    browser.screenshot(OUTPUT / f'{label}-{width}-full.png', full=True)
-                    browser.screenshot(OUTPUT / f'{label}-{width}-top.png')
-                    if label == 'm1' and width in (390, 1440):
-                        for section in ('profil', 'program', 'quran-teknologi', 'capaian-tahfizh', 'kehidupan', 'ppdb'):
-                            browser.evaluate(f"document.getElementById('{section}').scrollIntoView({{behavior:'instant'}})")
-                            time.sleep(0.3)
-                            browser.screenshot(OUTPUT / f'm1-{width}-{section}.png')
-            finally:
-                browser.close()
-        before, after = pair
-        check(f'{width}: frozen copy unchanged', before['text'] == after['text'])
-        check(f'{width}: photo sources, crops, alternatives unchanged', before['images'] == after['images'])
-        errors = []
-        if len(before['elements']) == len(after['elements']):
-            for i, (a, b) in enumerate(zip(before['elements'], after['elements'])):
-                if a['tag'] != b['tag'] or max(abs(x-y) for x, y in zip(a['rect'], b['rect'])) > 0.1:
-                    errors.append({'element': i, 'before': a, 'after': b})
-        else:
-            errors.append({'beforeCount': len(before['elements']), 'afterCount': len(after['elements'])})
-        check(f'{width}: baseline geometry within 0.1px', not errors and before['height'] == after['height'], errors)
-        layouts[width] = {'baseline': before, 'm1': after}
+        browser = Browser()
+        try:
+            browser.viewport(width)
+            browser.navigate((ROOT / 'index.html').as_uri())
+            settle(browser)
+            layout = browser.evaluate(GEOMETRY)
+            composition = browser.evaluate("""(() => {
+              const box=s=>{const r=document.querySelector(s).getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,right:r.right,bottom:r.bottom}};
+              return {clientWidth:document.documentElement.clientWidth,overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth,
+                sections:[...document.querySelectorAll('main>section')].map(e=>e.id),benefits:document.querySelectorAll('.benefit').length,
+                hero:box('.hero'),heroImage:box('.hero__image'),heroTitle:box('.hero h1'),profileImage:box('.profile__visual img'),profilePanel:box('.profile__panel'),
+                program:box('.pillars'),cards:[...document.querySelectorAll('.pillar')].map(e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height}})};
+            })()""")
+            check(f'{width}: P04 seven-section order', composition['sections'] ==
+                  ['hero','profil','program','quran-teknologi','capaian-tahfizh','kehidupan','ppdb'])
+            check(f'{width}: four-benefit strip', composition['benefits'] == 4)
+            check(f'{width}: real image mapping and accessible alternatives',
+                  [Path(image['src']).stem.rsplit('-', 1)[0] for image in layout['images']] == approved and
+                  all(image['alt'] for image in layout['images']) and
+                  not any('1000520096' in image['src'] for image in layout['images']))
+            check(f'{width}: accurate cumulative metric',
+                  'Juz hafalan yang telah disetorkan santri secara kumulatif' in layout['text'] and
+                  'Santri telah menyelesaikan setoran hafalan 30 juz' not in layout['text'])
+            check(f'{width}: no horizontal overflow', not composition['overflow'])
+            if width >= 1024:
+                check(f'{width}: integrated Hero, image covers majority of plane',
+                      composition['heroImage']['w'] > composition['clientWidth'] * .5 and
+                      abs(composition['heroImage']['y'] - composition['hero']['y']) < 6 and
+                      composition['heroTitle']['right'] > composition['heroImage']['x'])
+                check(f'{width}: compact desktop Hero and program',
+                      480 <= composition['hero']['h'] <= 650 and composition['program']['h'] <= 700)
+                check(f'{width}: three cards form one row',
+                      max(card['y'] for card in composition['cards']) - min(card['y'] for card in composition['cards']) < 1)
+            check(f'{width}: factual panel overlaps authentic Profile photo',
+                  composition['profilePanel']['x'] < composition['profileImage']['right'] and
+                  composition['profilePanel']['y'] < composition['profileImage']['bottom'])
+            layouts[width] = {'layout': layout, 'composition': composition}
+            if width in (320, 390, 1440):
+                browser.screenshot(OUTPUT / f'p04-{width}-full.png', full=True)
+                browser.screenshot(OUTPUT / f'p04-{width}-top.png')
+                if width in (390, 1440):
+                    for section in ('profil', 'program', 'quran-teknologi', 'capaian-tahfizh', 'kehidupan', 'ppdb'):
+                        browser.evaluate(f"document.getElementById('{section}').scrollIntoView({{behavior:'instant'}})")
+                        time.sleep(0.3)
+                        browser.screenshot(OUTPUT / f'p04-{width}-{section}.png')
+        finally:
+            browser.close()
     (OUTPUT / 'geometry.json').write_text(json.dumps(layouts, indent=2))
 
 
@@ -134,7 +147,8 @@ def interaction():
             check(label + ': three shared observers', browser.evaluate('__m1.observers.length===3'))
             check(label + ': Hero rests within 950ms', browser.evaluate('__m1.hero.every(a=>a.duration+a.delay<=950) && document.getAnimations().length===0'), browser.evaluate('__m1.hero'))
             check(label + ': only ten explicit photo buttons, one dormant dialog', browser.evaluate("document.querySelectorAll('[data-photo] > .photo-trigger').length===10 && document.querySelectorAll('dialog').length===1 && !document.querySelector('dialog').open && !document.querySelector('.photo-lightbox__image').hasAttribute('src')"))
-            check(label + ': top navigation geometry matches baseline', browser.evaluate("!document.querySelector('.header').classList.contains('is-scrolled') && Math.abs(document.querySelector('.header').getBoundingClientRect().height-" + ('79' if width == 1440 else '66.78125') + ")<1"))
+            header = browser.evaluate("({height:document.querySelector('.header').getBoundingClientRect().height,scrolled:document.querySelector('.header').classList.contains('is-scrolled')})")
+            check(label + ': compact P04 navigation geometry', not header['scrolled'] and 80 <= header['height'] <= 90, header)
             check(label + ': no layout shift', browser.evaluate('__m1.cls===0'), browser.evaluate('({value:__m1.cls,entries:__m1.clsEntries})'))
             for y in (24, 25, 24, 25):
                 browser.evaluate(f"scrollTo({{top:{y},behavior:'instant'}})")
@@ -149,10 +163,14 @@ def interaction():
                 state = browser.evaluate("""({active:document.querySelector('.header').dataset.activeSection,
                     count:document.querySelectorAll('.nav__link[aria-current]').length,
                     top:document.getElementById(""" + json.dumps(section) + """).getBoundingClientRect().top,
-                    header:document.querySelector('.header').getBoundingClientRect().bottom})""")
+                    header:document.querySelector('.header').getBoundingClientRect().bottom,
+                    scroll:scrollY,max:document.documentElement.scrollHeight-innerHeight})""")
                 check(label + ': active anchor ' + section, state['active'] == section and state['count'] == 1, state)
                 if section != 'hero':
-                    check(label + ': sticky offset ' + section, state['top'] >= state['header'] and state['top'] <= 150, state)
+                    # A short final PPDB section can settle lower when the document reaches its end.
+                    at_document_end = section == 'ppdb' and abs(state['scroll'] - state['max']) <= 1
+                    check(label + ': sticky offset ' + section,
+                          state['top'] >= state['header'] and (state['top'] <= 150 or at_document_end), state)
             browser.navigate((ROOT / 'index.html').as_uri() + '#quran-teknologi')
             time.sleep(1.1)
             check(label + ': deep reload state', browser.evaluate("document.querySelector('.header').dataset.activeSection==='quran-teknologi' && document.querySelector('.header').classList.contains('is-scrolled') && document.querySelectorAll('.nav__link[aria-current]').length===1"))
@@ -197,7 +215,7 @@ def interaction():
             browser.key('Tab');browser.key('Tab', modifiers=8)
             time.sleep(0.2)
             check(label + ': CTA focus visible with precise 4px arrow response', browser.evaluate("document.activeElement.matches('.hero .btn:focus-visible') && parseFloat(getComputedStyle(document.activeElement).outlineWidth)>=3 && Math.abs(new DOMMatrix(getComputedStyle(document.activeElement.querySelector('span')).transform).e-4)<0.01"))
-            photo_count = 10 if width == 1440 else 9
+            photo_count = 10
             for i in range(photo_count):
                 browser.evaluate(f"window.__trigger=document.querySelectorAll('.photo-trigger')[{i}];__trigger.scrollIntoView({{block:'center',behavior:'instant'}});__trigger.focus({{preventScroll:true}})")
                 time.sleep(0.1)
@@ -297,8 +315,10 @@ def accessibility_modes():
             check(f'{width} no-JS: all original visible content at rest', browser.evaluate("![...document.querySelectorAll('[data-reveal],main img')].some(e=>e.getClientRects().length && (getComputedStyle(e).opacity!=='1'||getComputedStyle(e).transform!=='none')) && document.querySelectorAll('main img').length===10 && document.querySelector('.evidence__value').textContent==='230+'"))
             check(f'{width} no-JS: navigation/CTA anchors and images usable', browser.evaluate("getComputedStyle(document.querySelector('.nav__list')).display!=='none' && !document.querySelector('.photo-trigger,dialog') && document.querySelector('.hero .btn').getAttribute('href')==='#ppdb' && document.querySelector('.ppdb .btn').href.startsWith('https://wa.me/')"))
             browser.evaluate("document.querySelector('.hero .btn').click()")
-            time.sleep(0.1)
-            check(f'{width} no-JS: native anchor actually navigates', browser.evaluate("location.hash==='#ppdb' && document.querySelector('#ppdb').getBoundingClientRect().top>=document.querySelector('.header').getBoundingClientRect().bottom"))
+            time.sleep(0.8)
+            anchor = browser.evaluate("({hash:location.hash,top:document.querySelector('#ppdb').getBoundingClientRect().top,headerBottom:document.querySelector('.header').getBoundingClientRect().bottom,scrollY})")
+            check(f'{width} no-JS: native anchor actually navigates',
+                  anchor['hash'] == '#ppdb' and anchor['top'] >= anchor['headerBottom'], anchor)
             browser.screenshot(OUTPUT / f'no-js-{width}.png')
             browser.call('Emulation.setScriptExecutionDisabled', {'value':False})
         finally:
@@ -315,7 +335,7 @@ def accessibility_modes():
 def cold_loads():
     samples = []
     for width in (390, 1440):
-        for name, base in (('baseline', OUTPUT / 'reference'), ('m1', ROOT)):
+        for name, base in (('p04', ROOT),):
             browser = Browser()
             try:
                 browser.call('Page.bringToFront')
@@ -337,7 +357,7 @@ def cold_loads():
 
 def delayed_script():
     samples = []
-    for name, base in (('baseline', OUTPUT / 'reference'), ('m1', ROOT)):
+    for name, base in (('p04', ROOT),):
         browser = Browser()
         try:
             browser.call('Page.bringToFront')
