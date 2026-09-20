@@ -147,7 +147,8 @@ def interaction():
             check(label + ': three shared observers', browser.evaluate('__m1.observers.length===3'))
             check(label + ': Hero rests within 950ms', browser.evaluate('__m1.hero.every(a=>a.duration+a.delay<=950) && document.getAnimations().length===0'), browser.evaluate('__m1.hero'))
             check(label + ': only ten explicit photo buttons, one dormant dialog', browser.evaluate("document.querySelectorAll('[data-photo] > .photo-trigger').length===10 && document.querySelectorAll('dialog').length===1 && !document.querySelector('dialog').open && !document.querySelector('.photo-lightbox__image').hasAttribute('src')"))
-            check(label + ': compact P04 navigation geometry', browser.evaluate("!document.querySelector('.header').classList.contains('is-scrolled') && document.querySelector('.header').getBoundingClientRect().height>=80 && document.querySelector('.header').getBoundingClientRect().height<=90"))
+            header = browser.evaluate("({height:document.querySelector('.header').getBoundingClientRect().height,scrolled:document.querySelector('.header').classList.contains('is-scrolled')})")
+            check(label + ': compact P04 navigation geometry', not header['scrolled'] and 80 <= header['height'] <= 90, header)
             check(label + ': no layout shift', browser.evaluate('__m1.cls===0'), browser.evaluate('({value:__m1.cls,entries:__m1.clsEntries})'))
             for y in (24, 25, 24, 25):
                 browser.evaluate(f"scrollTo({{top:{y},behavior:'instant'}})")
@@ -314,8 +315,10 @@ def accessibility_modes():
             check(f'{width} no-JS: all original visible content at rest', browser.evaluate("![...document.querySelectorAll('[data-reveal],main img')].some(e=>e.getClientRects().length && (getComputedStyle(e).opacity!=='1'||getComputedStyle(e).transform!=='none')) && document.querySelectorAll('main img').length===10 && document.querySelector('.evidence__value').textContent==='230+'"))
             check(f'{width} no-JS: navigation/CTA anchors and images usable', browser.evaluate("getComputedStyle(document.querySelector('.nav__list')).display!=='none' && !document.querySelector('.photo-trigger,dialog') && document.querySelector('.hero .btn').getAttribute('href')==='#ppdb' && document.querySelector('.ppdb .btn').href.startsWith('https://wa.me/')"))
             browser.evaluate("document.querySelector('.hero .btn').click()")
-            time.sleep(0.1)
-            check(f'{width} no-JS: native anchor actually navigates', browser.evaluate("location.hash==='#ppdb' && document.querySelector('#ppdb').getBoundingClientRect().top>=document.querySelector('.header').getBoundingClientRect().bottom"))
+            time.sleep(0.8)
+            anchor = browser.evaluate("({hash:location.hash,top:document.querySelector('#ppdb').getBoundingClientRect().top,headerBottom:document.querySelector('.header').getBoundingClientRect().bottom,scrollY})")
+            check(f'{width} no-JS: native anchor actually navigates',
+                  anchor['hash'] == '#ppdb' and anchor['top'] >= anchor['headerBottom'], anchor)
             browser.screenshot(OUTPUT / f'no-js-{width}.png')
             browser.call('Emulation.setScriptExecutionDisabled', {'value':False})
         finally:

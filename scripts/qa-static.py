@@ -118,6 +118,14 @@ def run():
 
     check('Unique page titles', len(titles) == len(set(titles)) == len(expected_pages))
     check('Unique page descriptions', len(descriptions) == len(set(descriptions)) == len(expected_pages))
+    logo = ROOT / 'assets/images/brand/smptqf-logo.png'
+    logo_bytes = logo.read_bytes() if logo.is_file() else b''
+    check('Official school logo production copy is a transparent PNG',
+          logo_bytes.startswith(b'\x89PNG\r\n\x1a\n') and logo_bytes[25:26] == b'\x06')
+    check('School identity has official logo in every header and footer',
+          all(len([a for a in page.all('span') if 'brand-logo' in a.get('class', '').split()]) == 2
+              for page in pages.values()))
+    check('Hero decorative signature removed', 'hero__signature' not in pages['index.html'].source)
 
     home = pages['index.html']
     home_text = ' '.join(''.join(home.words).split())

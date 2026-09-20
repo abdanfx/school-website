@@ -58,6 +58,8 @@ def allowed_runtime_file(path):
         return True
     if path.parts[:1] == ('js',) and path.suffix == '.js':
         return True
+    if path == Path('assets/images/brand/smptqf-logo.png'):
+        return True
     return path.parts[:3] == ('assets', 'images', 'p03') and path.suffix == '.webp'
 
 

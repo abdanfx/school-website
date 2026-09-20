@@ -14,6 +14,8 @@ M1 adds one-time editorial and photographic reveals, scroll-responsive homepage 
 
 The homepage requests only the selected WebP derivatives in `assets/images/p03/`. Approved originals may be kept locally in ignored `assets/_incoming/`; this isolated checkout does not require them for static QA or the production build. Additional older baseline assets have not been substituted into the homepage.
 
+The official school mark is copied without recoloring from `assets/images/WhatsApp_Image_2024-08-17_at_07.25.14-removebg-preview(2).png` to `assets/images/brand/smptqf-logo.png`. The transparent source and the separate white-background JPEG stay outside the production artifact. Headers and footers place the green mark on a small white plate beside the readable school name.
+
 Optional deterministic regeneration, when the approved originals are available locally, with the existing FFmpeg installation:
 
 ```sh
@@ -37,7 +39,7 @@ python3 scripts/build-production.py
 python3 scripts/qa-dist.py
 ```
 
-The build discovers the reviewed runtime references, fails if a required source is missing, cleans stale output, and includes only the five pages, both stylesheets, shared JavaScript, referenced Prototype 03 WebP derivatives, and the reviewed Cloudflare `_headers` control. See [the Cloudflare deployment-preparation guide](docs/prototype-03-cloudflare-deployment.md) for project settings, preview verification, routing, header policy, deferred domain work, and rollback.
+The build discovers the reviewed runtime references, fails if a required source is missing, cleans stale output, and includes only the five pages, both stylesheets, shared JavaScript, referenced Prototype 03 WebP derivatives, the official school logo at `assets/images/brand/smptqf-logo.png`, and the reviewed Cloudflare `_headers` control. The source logo files remain outside the artifact. See [the Cloudflare deployment-preparation guide](docs/prototype-03-cloudflare-deployment.md) for project settings, preview verification, routing, header policy, deferred domain work, and rollback.
 
 For browser QA, start existing Chrome in a separate terminal from this directory:
 
