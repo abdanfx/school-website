@@ -38,7 +38,7 @@ The mobile menu remains the approved in-flow disclosure. It has `aria-expanded`,
 | Profile | Calm introduction/content group, media reveal, four short fact/rule steps. |
 | Programs | Equal 0/60/120ms desktop story timing, overlapping photo/index/title/copy, existing section rule draw; independent viewport arrivals with zero inter-program delay on mobile. |
 | Qur’an × Technology | Identity, heading, supporting copy, cyan line, staggered technical rows, and the longest media completion. All motion stops after the one-time entrance. |
-| Capaian | One editorial reveal of the metric group and supporting evidence. The literal `230+` remains in the initial DOM and is never mutated. |
+| Capaian | One editorial reveal of the metric group and supporting evidence. The metric remains literal in the initial DOM and is never mutated. The verified P04 content correction sets its value to `230` santri. |
 | Kehidupan | Existing mosaic and DOM order; primary, secondary, supporting, and archive photo timing. Captions resolve quietly. The original archive label and mobile archive visibility rule remain. |
 | PPDB | Label/heading and content/CTA groups; shared Hero interaction vocabulary. |
 | Footer | One short quiet group and the existing copyright rule. |

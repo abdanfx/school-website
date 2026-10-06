@@ -39,7 +39,7 @@ def settle(browser):
         time.sleep(0.08)
     browser.evaluate("Promise.all([...document.querySelectorAll('main img')].filter(e=>e.getClientRects().length).map(e=>{e.loading='eager';return e.decode().catch(()=>{});})).then(()=>true)")
     browser.evaluate("window.scrollTo({top:0,behavior:'instant'})")
-    time.sleep(1.2)
+    time.sleep(1.7)
 
 
 def geometry():
@@ -69,9 +69,9 @@ def geometry():
                   [Path(image['src']).stem.rsplit('-', 1)[0] for image in layout['images']] == approved and
                   all(image['alt'] for image in layout['images']) and
                   not any('1000520096' in image['src'] for image in layout['images']))
-            check(f'{width}: accurate cumulative metric',
-                  'Juz hafalan yang telah disetorkan santri secara kumulatif' in layout['text'] and
-                  'Santri telah menyelesaikan setoran hafalan 30 juz' not in layout['text'])
+            check(f'{width}: verified Tahfizh metric',
+                  '230 Santri yang telah menyelesaikan setoran hafalan Al-Qur\'an 30 juz' in layout['text'] and
+                  '230+' not in layout['text'] and 'secara kumulatif' not in layout['text'])
             check(f'{width}: no horizontal overflow', not composition['overflow'])
             if width >= 1024:
                 check(f'{width}: integrated Hero, image covers majority of plane',
@@ -142,10 +142,12 @@ def interaction():
             touch = width < 760
             browser.call('Emulation.setTouchEmulationEnabled', {'enabled': touch, 'maxTouchPoints': 1})
             browser.navigate((ROOT / 'index.html').as_uri())
-            time.sleep(1.1)
+            time.sleep(2.0)
             label = f'{width}'
             check(label + ': three shared observers', browser.evaluate('__m1.observers.length===3'))
-            check(label + ': Hero rests within 950ms', browser.evaluate('__m1.hero.every(a=>a.duration+a.delay<=950) && document.getAnimations().length===0'), browser.evaluate('__m1.hero'))
+            check(label + ': expressive Hero is finite and rests',
+                  browser.evaluate('__m1.hero.some(a=>a.duration>=850) && __m1.hero.every(a=>a.duration+a.delay<=1600) && document.getAnimations().length===0'),
+                  browser.evaluate("({hero:__m1.hero,active:document.getAnimations().map(a=>({name:a.animationName||a.transitionProperty,target:a.effect.target?.className,state:a.playState,timing:a.effect.getTiming()}))})"))
             check(label + ': only ten explicit photo buttons, one dormant dialog', browser.evaluate("document.querySelectorAll('[data-photo] > .photo-trigger').length===10 && document.querySelectorAll('dialog').length===1 && !document.querySelector('dialog').open && !document.querySelector('.photo-lightbox__image').hasAttribute('src')"))
             header = browser.evaluate("({height:document.querySelector('.header').getBoundingClientRect().height,scrolled:document.querySelector('.header').classList.contains('is-scrolled')})")
             check(label + ': compact P04 navigation geometry', not header['scrolled'] and 80 <= header['height'] <= 90, header)
@@ -199,7 +201,7 @@ def interaction():
             contrast = browser.evaluate((ROOT / 'scripts/qa-contrast.js').read_text())
             check(label + ': settled homepage text contrast', not contrast['failures'], contrast)
             check(label + ': no pending visible content or idle animations', browser.evaluate("![...document.querySelectorAll('.is-pending')].some(e=>e.getClientRects().length) && document.getAnimations().length===0"))
-            check(label + ': metric never mutates', browser.evaluate("__m1.metricChanges===0 && document.querySelector('.evidence__value').textContent==='230+'"))
+            check(label + ': metric never mutates', browser.evaluate("__m1.metricChanges===0 && document.querySelector('.evidence__value').textContent==='230'"))
             check(label + ': native motion uses zero RAF calls', browser.evaluate('__m1.raf===0'))
             if not touch:
                 browser.evaluate("document.querySelector('.pillar .photo-trigger').scrollIntoView({block:'center',behavior:'instant'})")
@@ -213,8 +215,10 @@ def interaction():
                 check(label + ': photo returns to rest after hover', browser.evaluate("getComputedStyle(document.querySelector('.pillar img')).transform==='none'"))
             browser.evaluate("document.querySelector('.hero .btn').focus()")
             browser.key('Tab');browser.key('Tab', modifiers=8)
-            time.sleep(0.2)
-            check(label + ': CTA focus visible with precise 4px arrow response', browser.evaluate("document.activeElement.matches('.hero .btn:focus-visible') && parseFloat(getComputedStyle(document.activeElement).outlineWidth)>=3 && Math.abs(new DOMMatrix(getComputedStyle(document.activeElement.querySelector('span')).transform).e-4)<0.01"))
+            time.sleep(0.3)
+            check(label + ': CTA focus visible with precise 5px arrow response',
+                  browser.evaluate("document.activeElement.matches('.hero .btn:focus-visible') && parseFloat(getComputedStyle(document.activeElement).outlineWidth)>=3 && Math.abs(new DOMMatrix(getComputedStyle(document.activeElement.querySelector('span')).transform).e-5)<0.01"),
+                  browser.evaluate("({active:document.activeElement.outerHTML.slice(0,130),focus:document.activeElement.matches(':focus-visible'),outline:getComputedStyle(document.activeElement).outlineWidth,arrow:getComputedStyle(document.activeElement.querySelector('span')).transform})"))
             photo_count = 10
             for i in range(photo_count):
                 browser.evaluate(f"window.__trigger=document.querySelectorAll('.photo-trigger')[{i}];__trigger.scrollIntoView({{block:'center',behavior:'instant'}});__trigger.focus({{preventScroll:true}})")
@@ -293,7 +297,7 @@ def accessibility_modes():
             browser.viewport(width, 844)
             browser.call('Emulation.setEmulatedMedia', {'features':[{'name':'prefers-reduced-motion','value':'reduce'}]})
             browser.navigate((ROOT / 'index.html').as_uri())
-            check(f'{width} reduced: content immediate, zero pending/spatial animation', browser.evaluate("!document.querySelector('.is-pending,.is-entering') && getComputedStyle(document.documentElement).scrollBehavior==='auto' && [...document.querySelectorAll('[data-reveal]')].every(e=>getComputedStyle(e).opacity==='1' && getComputedStyle(e).transform==='none') && document.querySelector('.evidence__value').textContent==='230+'"))
+            check(f'{width} reduced: content immediate, zero pending/spatial animation', browser.evaluate("!document.querySelector('.is-pending,.is-entering') && getComputedStyle(document.documentElement).scrollBehavior==='auto' && [...document.querySelectorAll('[data-reveal]')].every(e=>getComputedStyle(e).opacity==='1' && getComputedStyle(e).transform==='none' && getComputedStyle(e).clipPath==='none') && document.querySelector('.evidence__value').textContent==='230'"))
             browser.evaluate("location.hash='kehidupan'");time.sleep(0.1)
             check(f'{width} reduced: active navigation still works', browser.evaluate("document.querySelector('.header').dataset.activeSection==='kehidupan'"))
             browser.evaluate("window.__trigger=document.querySelector('.life__group .photo-trigger');__trigger.focus()")
@@ -312,7 +316,7 @@ def accessibility_modes():
             check(f'{width}: live reduced preference resolves pending content', browser.evaluate("!document.querySelector('.is-pending,.is-entering') && document.getAnimations().length===0"))
             browser.call('Emulation.setScriptExecutionDisabled', {'value':True})
             browser.navigate((ROOT / 'index.html').as_uri())
-            check(f'{width} no-JS: all original visible content at rest', browser.evaluate("![...document.querySelectorAll('[data-reveal],main img')].some(e=>e.getClientRects().length && (getComputedStyle(e).opacity!=='1'||getComputedStyle(e).transform!=='none')) && document.querySelectorAll('main img').length===10 && document.querySelector('.evidence__value').textContent==='230+'"))
+            check(f'{width} no-JS: all original visible content at rest', browser.evaluate("![...document.querySelectorAll('[data-reveal],main img')].some(e=>e.getClientRects().length && (getComputedStyle(e).opacity!=='1'||getComputedStyle(e).transform!=='none'||getComputedStyle(e).clipPath!=='none')) && document.querySelectorAll('main img').length===10 && document.querySelector('.evidence__value').textContent==='230'"))
             check(f'{width} no-JS: navigation/CTA anchors and images usable', browser.evaluate("getComputedStyle(document.querySelector('.nav__list')).display!=='none' && !document.querySelector('.photo-trigger,dialog') && document.querySelector('.hero .btn').getAttribute('href')==='#ppdb' && document.querySelector('.ppdb .btn').href.startsWith('https://wa.me/')"))
             browser.evaluate("document.querySelector('.hero .btn').click()")
             time.sleep(0.8)
@@ -332,10 +336,181 @@ def accessibility_modes():
         browser.close()
 
 
+def focus_probe():
+    browser = Browser()
+    try:
+        browser.viewport(390, 844)
+        browser.call('Page.bringToFront')
+        browser.navigate((ROOT / 'index.html').as_uri())
+        check('Keyboard target begins in an offscreen pending section',
+              browser.evaluate("document.querySelector('.life__group .media-frame').classList.contains('is-pending')"))
+        browser.evaluate("window.__seenFocus=0;document.addEventListener('focusin',()=>__seenFocus++);window.__focusTarget=document.querySelector('.life__group .photo-trigger');__focusTarget.focus()")
+        check('Keyboard focus immediately reveals pending section content',
+              browser.evaluate("document.activeElement===__focusTarget && !document.querySelector('.life .is-pending') && getComputedStyle(document.querySelector('.life__group .media-frame')).clipPath==='inset(0px)'"),
+              browser.evaluate("({active:document.activeElement===__focusTarget,focusEvents:__seenFocus,pending:[...document.querySelectorAll('.life .is-pending')].map(e=>e.dataset.motion),clip:getComputedStyle(document.querySelector('.life__group .media-frame')).clipPath,frameClass:document.querySelector('.life__group .media-frame').className})"))
+    finally:
+        browser.close()
+
+
+def expressive():
+    """P04 v0.2 roles, failure modes, and review captures using the shared CDP client."""
+    evidence = ROOT / '.qa/p04-v02'
+    evidence.mkdir(parents=True, exist_ok=True)
+    section_names = ('profil', 'program', 'quran-teknologi', 'capaian-tahfizh', 'kehidupan', 'ppdb')
+    for width in (1440, 390, 320):
+        browser = Browser()
+        try:
+            browser.viewport(width, 900 if width == 1440 else 844)
+            browser.call('Page.addScriptToEvaluateOnNewDocument', {'source': INSTRUMENT})
+            browser.call('Page.navigate', {'url': (ROOT / 'index.html').as_uri()})
+            time.sleep(0.24)
+            early = browser.evaluate("""(() => {
+              const title=document.querySelector('[data-motion="hero-title"]');
+              return {ready:document.documentElement.classList.contains('motion-ready'),
+                entering:title.classList.contains('is-entering'),
+                travel:getComputedStyle(title).transform,
+                duration:getComputedStyle(title).getPropertyValue('--p04-duration').trim(),
+                value:document.querySelector('.evidence__value').textContent,
+                overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth};
+            })()""")
+            check(f'{width} v0.2: staged Hero starts from literal visible HTML',
+                  early['ready'] and early['entering'] and early['travel'] != 'none' and
+                  early['duration'] == ('950ms' if width == 1440 else '760ms') and
+                  early['value'] == '230' and not early['overflow'], early)
+            browser.screenshot(evidence / f'{width}-hero-during.png')
+            time.sleep(1.7)
+            check(f'{width} v0.2: Hero settles without active animation',
+                  browser.evaluate("!document.querySelector('.hero .is-entering') && !document.getAnimations().some(a=>a.effect.target?.closest('.hero'))"),
+                  browser.evaluate("({entering:[...document.querySelectorAll('.hero .is-entering')].map(e=>e.dataset.motion),active:document.getAnimations().filter(a=>a.effect.target?.closest('.hero')).map(a=>({name:a.animationName||a.transitionProperty,target:a.effect.target?.className,state:a.playState,timing:a.effect.getTiming()}))})"))
+            browser.screenshot(evidence / f'{width}-hero-after.png')
+            card_delays = browser.evaluate("[...document.querySelectorAll('.pillar')].map(e=>getComputedStyle(e).getPropertyValue('--p04-card-delay').trim()||'0ms')")
+            check(f'{width} v0.2: responsive independent pillar timing',
+                  card_delays == (['0ms','120ms','240ms'] if width == 1440 else ['0ms','0ms','0ms']), card_delays)
+            check(f'{width} v0.2: section directions and durations are distinct', browser.evaluate("""(() => {
+              const role=r=>{const s=getComputedStyle(document.querySelector('[data-motion="'+r+'"]'));return [s.getPropertyValue('--p04-x').trim(),s.getPropertyValue('--p04-y').trim(),s.getPropertyValue('--p04-duration').trim()]};
+              const p=role('profile-photo'),t=role('technology-photo'),v=role('evidence-value');
+              return p[2]!==t[2] && t[2]!==v[2] && (innerWidth<761 || (p[0]==='52px' && t[0]==='-72px' && v[1]==='64px'));
+            })()"""))
+            for section in section_names:
+                browser.evaluate("document.getElementById(" + json.dumps(section) + ").scrollIntoView({behavior:'instant'})")
+                time.sleep(0.2)
+                browser.screenshot(evidence / f'{width}-{section}-during.png')
+                check(f'{width} v0.2: {section} has no horizontal overflow during reveal',
+                      browser.evaluate('document.documentElement.scrollWidth<=document.documentElement.clientWidth'))
+            settle(browser)
+            check(f'{width} v0.2: traversal leaves no pending content or idle animation',
+                  browser.evaluate("!document.querySelector('.is-pending,.is-entering') && document.getAnimations().length===0 && document.querySelector('.evidence__value').textContent==='230'"))
+            browser.screenshot(evidence / f'{width}-full-after.png', full=True)
+            for section in section_names:
+                browser.evaluate("document.getElementById(" + json.dumps(section) + ").scrollIntoView({behavior:'instant'})")
+                time.sleep(0.08)
+                browser.screenshot(evidence / f'{width}-{section}-after.png')
+            if width < 760:
+                browser.evaluate("document.querySelector('.pillar:last-child .photo-trigger').focus()")
+                check(f'{width} v0.2: focusing last mobile card resolves its section',
+                      browser.evaluate("![...document.querySelectorAll('.pillars [data-reveal]')].some(e=>e.classList.contains('is-pending'))"))
+            browser.evaluate("window.__v02Trigger=document.querySelector('.hero .photo-trigger');__v02Trigger.focus();__v02Trigger.click()")
+            time.sleep(0.12)
+            browser.screenshot(evidence / f'{width}-lightbox-during.png')
+            check(f'{width} v0.2: lightbox opens with native focus', browser.evaluate("document.querySelector('dialog').matches(':modal') && document.activeElement.matches('.photo-lightbox__close')"))
+            time.sleep(0.3)
+            browser.screenshot(evidence / f'{width}-lightbox-after.png')
+            browser.key('Escape')
+            time.sleep(0.2)
+            check(f'{width} v0.2: Escape restores trigger and scroll', browser.evaluate("!document.querySelector('dialog').open && document.activeElement===__v02Trigger && !document.documentElement.classList.contains('is-scroll-locked')"))
+            print('Expressive capture complete:', width, flush=True)
+        finally:
+            browser.close()
+
+    # Enter selected regions with native smooth scrolling so the observer,
+    # not a direct class mutation, starts each actual section transition.
+    for width, selector, slug in (
+        (1440, '[data-motion="technology-photo"]', 'technology-photo'),
+        (1440, '[data-motion="evidence-value"]', 'evidence-value'),
+        (1440, '.life__group [data-motion="life-photo"]', 'life-primary-photo'),
+        (390, '.pillar:last-child [data-motion="pillar-photo"]', 'mobile-third-card'),
+    ):
+        browser = Browser()
+        try:
+            browser.viewport(width, 900 if width == 1440 else 844)
+            browser.call('Page.bringToFront')
+            browser.navigate((ROOT / 'index.html').as_uri())
+            start = browser.evaluate("""(() => {
+              const e=document.querySelector(""" + json.dumps(selector) + """);
+              const top=e.getBoundingClientRect().top+scrollY;
+              scrollTo({top:Math.max(0,top-innerHeight-250),behavior:'instant'});
+              return {top,pending:e.classList.contains('is-pending')};
+            })()""")
+            time.sleep(0.35)
+            check(f'{width} v0.2: {slug} armed before approach', browser.evaluate("document.querySelector(" + json.dumps(selector) + ").classList.contains('is-pending')"), start)
+            browser.evaluate("scrollTo({top:" + str(start['top']) + "-innerHeight+220,behavior:'smooth'})")
+            active = False
+            for _ in range(20):
+                time.sleep(0.1)
+                active = browser.evaluate("""(() => {
+                  const e=document.querySelector(""" + json.dumps(selector) + """);
+                  return !e.classList.contains('is-pending') && document.getAnimations().some(a=>a.effect.target===e && a.playState==='running');
+                })()""")
+                if active:
+                    browser.screenshot(evidence / f'{width}-{slug}-observed-mid.png')
+                    break
+            check(f'{width} v0.2: {slug} observer starts visible motion', active,
+                  browser.evaluate("""(() => {const e=document.querySelector(""" + json.dumps(selector) + """);return {className:e.className,transform:getComputedStyle(e).transform,clip:getComputedStyle(e).clipPath,opacity:getComputedStyle(e).opacity,animations:document.getAnimations().filter(a=>a.effect.target===e).map(a=>({name:a.transitionProperty||a.animationName,state:a.playState}))}})()"""))
+            time.sleep(1.4)
+            check(f'{width} v0.2: {slug} settles and stays readable', browser.evaluate("""(() => {
+              const e=document.querySelector(""" + json.dumps(selector) + """);
+              return !e.classList.contains('is-pending') && getComputedStyle(e).opacity==='1' && getComputedStyle(e).transform==='none';
+            })()"""))
+        finally:
+            browser.close()
+
+    browser = Browser()
+    try:
+        browser.viewport(390, 844)
+        browser.navigate((ROOT / 'index.html').as_uri())
+        browser.evaluate("scrollTo({top:document.documentElement.scrollHeight,behavior:'instant'})")
+        time.sleep(0.35)
+        check('Fast scroll resolves all skipped or visible pending targets', browser.evaluate("![...document.querySelectorAll('.is-pending')].some(e=>e.getBoundingClientRect().top<innerHeight)"))
+        browser.evaluate("window.dispatchEvent(new PageTransitionEvent('pageshow',{persisted:true}))")
+        check('Restored page resolves every pending target', browser.evaluate("!document.querySelector('.is-pending,.is-entering')"))
+    finally:
+        browser.close()
+
+    focus_probe()
+
+    browser = Browser()
+    try:
+        browser.viewport(390, 844)
+        browser.call('Fetch.enable', {'patterns':[{'urlPattern':'*js/script.js','requestStage':'Request'}]})
+        browser.call('Page.navigate', {'url':(ROOT / 'index.html').as_uri()})
+        time.sleep(0.35)
+        check('Delayed JavaScript: static P04 remains readable before enhancement', browser.evaluate("!!document.querySelector('.hero h1') && !document.documentElement.classList.contains('motion-ready') && !document.querySelector('.is-pending') && [...document.querySelectorAll('[data-motion]')].every(e=>getComputedStyle(e).opacity==='1' && getComputedStyle(e).transform==='none' && getComputedStyle(e).clipPath==='none')"))
+        browser.screenshot(evidence / '390-delayed-script-static.png')
+        time.sleep(1.5)
+        request = next(e['params']['requestId'] for e in browser.events if e.get('method') == 'Fetch.requestPaused')
+        browser.call('Fetch.continueRequest', {'requestId':request})
+        time.sleep(0.25)
+        check('Late JavaScript does not replay Hero entrance', browser.evaluate("document.documentElement.classList.contains('motion-ready') && !document.querySelector('.hero .is-entering') && document.querySelector('.hero h1').getBoundingClientRect().width>0"))
+    finally:
+        browser.close()
+
+    browser = Browser()
+    try:
+        browser.call('Page.addScriptToEvaluateOnNewDocument', {'source':"window.IntersectionObserver=class { constructor(){throw Error('QA observer failure')} };"})
+        browser.navigate((ROOT / 'index.html').as_uri())
+        check('Failed IntersectionObserver: visible content and lightbox remain usable', browser.evaluate("!document.documentElement.classList.contains('motion-ready') && !document.querySelector('.is-pending') && document.querySelectorAll('.photo-trigger').length===10 && [...document.querySelectorAll('[data-motion]')].every(e=>getComputedStyle(e).opacity==='1' && getComputedStyle(e).transform==='none')"))
+    finally:
+        browser.close()
+
+
 def cold_loads():
     samples = []
+    baselines = [('p04-v02', ROOT)]
+    protected = ROOT / '.qa/p04-v02/baseline-src'
+    if (protected / 'index.html').is_file():
+        baselines.append(('p04-baseline', protected))
     for width in (390, 1440):
-        for name, base in (('p04', ROOT),):
+        for name, base in baselines:
             browser = Browser()
             try:
                 browser.call('Page.bringToFront')
@@ -357,7 +532,11 @@ def cold_loads():
 
 def delayed_script():
     samples = []
-    for name, base in (('p04', ROOT),):
+    baselines = [('p04-v02', ROOT)]
+    protected = ROOT / '.qa/p04-v02/baseline-src'
+    if (protected / 'index.html').is_file():
+        baselines.append(('p04-baseline', protected))
+    for name, base in baselines:
         browser = Browser()
         try:
             browser.call('Page.bringToFront')
@@ -389,6 +568,8 @@ if __name__ == '__main__':
     parser.add_argument('--geometry', action='store_true')
     parser.add_argument('--interactions', action='store_true')
     parser.add_argument('--accessibility', action='store_true')
+    parser.add_argument('--expressive', action='store_true')
+    parser.add_argument('--focus-probe', action='store_true')
     args = parser.parse_args()
     PORT = args.port
     OUTPUT.mkdir(parents=True, exist_ok=True)
@@ -398,6 +579,17 @@ if __name__ == '__main__':
     if args.cold_loads:
         cold_loads()
         raise SystemExit(0)
+    if args.expressive:
+        expressive()
+        failures = [r for r in RESULTS if not r['pass']]
+        (OUTPUT / 'expressive-results.json').write_text(json.dumps(RESULTS, indent=2))
+        print(json.dumps({'checks': len(RESULTS), 'failures': len(failures)}, indent=2))
+        raise SystemExit(bool(failures))
+    if args.focus_probe:
+        focus_probe()
+        failures = [r for r in RESULTS if not r['pass']]
+        print(json.dumps({'checks': len(RESULTS), 'failures': failures}, indent=2))
+        raise SystemExit(bool(failures))
     if not args.interactions and not args.accessibility:
         geometry()
     if not args.geometry and not args.accessibility:

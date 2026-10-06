@@ -291,10 +291,13 @@ This is the homepage signature differentiation story and should feel special.
 `Capaian Tahfizh`
 
 ### Metric value
-`230+`
+`230`
 
 ### Metric label
-`Santri telah menyelesaikan setoran hafalan 30 juz`
+`Santri yang telah menyelesaikan setoran hafalan Al-Qur'an 30 juz`
+
+### Provenance note
+Abdan visually verified the statistic against a physical Tahfizh achievement banner from Pondok Pesantren Daarul Quran Fantastis. The banner identifies 230 santri who completed setoran hafalan Al-Qur'an 30 juz. The count is santri, not cumulative juz; the banner states 230 without a plus sign. No student names from the banner are recorded here.
 
 ### Supporting copy
 `Capaian ini menjadi salah satu bukti kesungguhan pembinaan tahfizh di lingkungan Pondok Pesantren Daarul Quran Fantastis. Kehadiran data ini dimaksudkan sebagai penguat kepercayaan, sekaligus inspirasi bagi santri yang sedang menempuh proses hafalan.`
