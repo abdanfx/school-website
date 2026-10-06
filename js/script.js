@@ -77,15 +77,11 @@
       });
     };
     syncSection();
-    if ('IntersectionObserver' in window) {
+    if (typeof window.IntersectionObserver === 'function') {
       const sentinel = document.createElement('span');
       sentinel.className = 'nav-sentinel';
       sentinel.setAttribute('aria-hidden', 'true');
-      document.body.prepend(sentinel);
-      const topObserver = new IntersectionObserver(([entry]) => {
-        header.classList.toggle('is-scrolled', !entry.isIntersecting && entry.boundingClientRect.top < 0);
-      });
-      topObserver.observe(sentinel);
+      let topObserver;
       let sectionObserver;
       const observeSections = () => {
         if (sectionObserver) sectionObserver.disconnect();
@@ -96,49 +92,97 @@
         sections.forEach(section => sectionObserver.observe(section));
         syncSection();
       };
-      observeSections();
-      window.addEventListener('resize', observeSections);
-      window.addEventListener('pageshow', () => {
-        header.classList.toggle('is-scrolled', sentinel.getBoundingClientRect().bottom < 0);
-        syncSection();
-      });
+      try {
+        document.body.prepend(sentinel);
+        topObserver = new IntersectionObserver(([entry]) => {
+          header.classList.toggle('is-scrolled', !entry.isIntersecting && entry.boundingClientRect.top < 0);
+        });
+        topObserver.observe(sentinel);
+        observeSections();
+        window.addEventListener('resize', observeSections);
+        window.addEventListener('pageshow', () => {
+          header.classList.toggle('is-scrolled', sentinel.getBoundingClientRect().bottom < 0);
+          syncSection();
+        });
+      } catch {
+        if (topObserver) topObserver.disconnect();
+        if (sectionObserver) sectionObserver.disconnect();
+        sentinel.remove();
+      }
     }
     window.addEventListener('hashchange', syncSection);
   }
 
   const targets = [...document.querySelectorAll('[data-reveal]')];
     let revealObserver;
+    const revealTriggers = new Map();
+    const triggerFor = element => document.body.classList.contains('p04') &&
+      element.classList.contains('media-frame') && element.dataset.motion !== 'hero-photo'
+      ? element.parentElement : element;
     const reveal = (element, immediate = false) => {
+      if (!immediate && element.classList.contains('is-pending') && element.classList.contains('media-frame') && document.body.classList.contains('p04')) {
+        element.classList.add('is-revealing');
+        const style = getComputedStyle(element);
+        const duration = parseFloat(style.getPropertyValue('--p04-duration')) || 950;
+        const delay = parseFloat(style.getPropertyValue('--p04-delay')) || 0;
+        setTimeout(() => element.classList.remove('is-revealing'), duration + delay + 60);
+      }
       if (immediate && (element.classList.contains('is-pending') || element.classList.contains('is-entering'))) {
         element.classList.add('reveal-immediate');
       }
       element.classList.remove('is-pending');
-      if (revealObserver) revealObserver.unobserve(element);
+      if (immediate) element.classList.remove('is-entering', 'is-revealing');
+      if (revealObserver) revealObserver.unobserve(triggerFor(element));
+      revealTriggers.delete(triggerFor(element));
     };
     const revealAll = () => {
       targets.forEach(element => {
         reveal(element, true);
-        element.classList.remove('is-entering');
+        element.classList.remove('is-entering', 'is-revealing');
       });
       if (revealObserver) revealObserver.disconnect();
+      revealTriggers.clear();
+    };
+    // A fast jump can skip an observer intersection altogether. Resolve only
+    // targets already passed; visible targets retain their observed entrance.
+    const resolvePassed = () => {
+      targets.forEach(element => {
+        if (element.classList.contains('is-pending') && element.getBoundingClientRect().bottom < 0) {
+          reveal(element, true);
+        }
+      });
+    };
+    const resolveReached = () => {
+      targets.forEach(element => {
+        if (element.classList.contains('is-pending') && element.getBoundingClientRect().top < innerHeight) reveal(element, true);
+      });
     };
     // Install the observer before arming anything. Failed initialization fails open.
-    if ('IntersectionObserver' in window && !reduced.matches) {
+    if (typeof window.IntersectionObserver === 'function' && !reduced.matches) {
       try {
         revealObserver = new IntersectionObserver(entries => {
-          entries.forEach(entry => { if (entry.isIntersecting) reveal(entry.target); });
+          entries.forEach(entry => {
+            const element = revealTriggers.get(entry.target);
+            if (!element) return;
+            if (entry.isIntersecting) reveal(element);
+            else if (entry.boundingClientRect.bottom < 0) reveal(element, true);
+          });
         }, { rootMargin: '0px 0px 140px 0px', threshold: 0 });
         targets.forEach(element => {
           element.style.setProperty('--reveal-step', element.dataset.step || 0);
           if (element.dataset.mobileStep) element.style.setProperty('--reveal-mobile-step', element.dataset.mobileStep);
           const bounds = element.getBoundingClientRect();
           if (bounds.top >= innerHeight && bounds.height) {
-            revealObserver.observe(element);
+            const trigger = triggerFor(element);
+            revealTriggers.set(trigger, element);
+            revealObserver.observe(trigger);
             element.classList.add('is-pending');
           } else if (element.dataset.hero && bounds.bottom > 0 && scrollY < 20 && performance.now() < 1500) {
             // Finite CSS entrance only; already-painted late loads stay visible.
             element.classList.add('is-entering');
-            element.addEventListener('animationend', () => element.classList.remove('is-entering'), { once: true });
+            element.addEventListener('animationend', event => {
+              if (event.target === element) element.classList.remove('is-entering');
+            });
           }
         });
         root.classList.add('motion-ready');
@@ -147,10 +191,22 @@
         revealAll();
       }
     }
+    if ('onscrollend' in window) {
+      window.addEventListener('scrollend', resolvePassed, { passive: true });
+    } else {
+      let reachTimer;
+      window.addEventListener('scroll', () => {
+        clearTimeout(reachTimer);
+        reachTimer = setTimeout(resolvePassed, 140);
+      }, { passive: true });
+    }
+    window.addEventListener('hashchange', resolveReached);
+    window.addEventListener('resize', resolveReached);
     // Focusing a destination or control never leaves the reader waiting for motion.
     document.addEventListener('focusin', event => {
+      const region = event.target.closest('section, footer');
       targets.forEach(element => {
-        if (element.contains(event.target) || event.target.contains(element)) reveal(element, true);
+        if ((region && region.contains(element)) || element.contains(event.target) || event.target.contains(element)) reveal(element, true);
       });
     });
     reduced.addEventListener('change', () => { if (reduced.matches) revealAll(); });

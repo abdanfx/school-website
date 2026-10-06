@@ -2,13 +2,15 @@
 
 Framework-free site: HTML, the shared P03 stylesheet, a P04 homepage-only stylesheet, and deferred vanilla JavaScript. No package installation is required.
 
-Open `index.html` directly, or serve this directory with an existing static server. The homepage uses approved P03 content, links, photography, and interactions, with a new presentation in `css/p04-home.css`. The corrected `230+` metric means cumulative juz of memorization submitted by students. `docs/p04-reference/` contains untracked local visual specifications and is excluded from the site and production artifact.
+Open `index.html` directly, or serve this directory with an existing static server. The homepage uses approved P03 content, links, photography, and interactions, with a new presentation in `css/p04-home.css`. The Tahfizh metric is 230 santri who have completed setoran hafalan Al-Qur'an 30 juz, as verified against the physical Tahfizh achievement banner supplied by Abdan. `docs/p04-reference/` contains untracked local visual specifications and is excluded from the site and production artifact.
 
 About, Contact, Admissions, and 404 use the shared Prototype 03 internal-page shell: compact institutional Hero, six-link navigation, editorial content patterns, contextual actions, and the institutional footer. Their surfaces, text, rules, and controls now follow the P04 emerald, white, and pale green palette without changing that layout. Contact uses the verified school-building address and Google Maps destination; the deprecated Yayasan/home embed is removed.
 
 The contact form opens the verified WhatsApp destination; it does not send a message itself. Without JavaScript, navigation remains visible and the contact page offers a direct WhatsApp link.
 
 M1 adds one-time editorial and photographic reveals, scroll-responsive homepage navigation, precise CTA feedback, and one accessible native photography dialog. Internal pages reuse these primitives at a quieter cadence. Content is visible by default; reduced motion removes spatial animation and stagger while preserving interactions. There is no animation library or continuous animation loop. See [the M1 implementation report](docs/prototype-03-m1-report.md) for the original architecture and homepage regression scope.
+
+P04 Expressive Motion v0.2 adds section-specific direction, distance, duration, and staging to the approved homepage without changing its settled layout. Static P04 remains visible before JavaScript, on initialization failure, and with JavaScript disabled. The verified Tahfizh value remains a literal `230`. See the [approved choreography plan](docs/p04-expressive-motion-v02-plan.md) and run `python3 scripts/qa-m1.py --expressive` for focused motion checks and review captures in `.qa/p04-v02/`.
 
 ## Assets
 

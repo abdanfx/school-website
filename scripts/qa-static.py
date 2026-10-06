@@ -131,9 +131,8 @@ def run():
     home_text = ' '.join(''.join(home.words).split())
     source = (ROOT / 'docs/prototype-03-source-of-truth.md').read_text()
     frozen = re.findall(r'^`([^`]+)`$', source, re.M)
-    # P04 corrects the metric and selects one approved Profile paragraph for its compact composition.
+    # P04 selects one approved Profile paragraph for its compact composition.
     superseded = {
-        'Santri telah menyelesaikan setoran hafalan 30 juz',
         'Sebagai bagian dari Pondok Pesantren Daarul Quran Fantastis Pusat, sekolah ini menghadirkan suasana belajar yang dekat, terarah, dan membina. Proses pendidikan dirancang untuk menjaga keseimbangan antara pembentukan karakter Islami, penguatan akademik, dan kesiapan menghadapi perkembangan teknologi.'
     }
     for text in frozen:
@@ -154,8 +153,9 @@ def run():
           any(a.get('href') == 'css/p04-home.css' for a in home.all('link')) and
           all('p04-home.css' not in pages[name].source for name in ('about.html', 'contact.html', 'admissions.html', '404.html')))
     check('P04 truthful tahfizh metric',
-          '230+' in home_text and 'Juz hafalan yang telah disetorkan santri secara kumulatif' in home_text and
-          'Santri telah menyelesaikan setoran hafalan 30 juz' not in home_text and
+          bool(re.search(r'<p class="evidence__value"[^>]*>230</p>', home.source)) and
+          bool(re.search(r'<p class="evidence__label"[^>]*>Santri yang telah menyelesaikan setoran hafalan Al-Qur\'an 30 juz</p>', home.source)) and
+          '230+' not in home_text and 'secara kumulatif' not in home_text and
           not re.search(r'\b(?:120\+|15\+|30\+|100%)\b', home_text))
     check('P04 benefit strip is structural, not numbered section',
           'benefits' in home.source and all(text in home_text for text in (
@@ -231,9 +231,13 @@ def run():
     # The browser suite verifies the actual no-JS computed visibility.
     check('Future reveals armed only after observer installation',
           '.motion-ready .is-pending' in css and
-          js.index('revealObserver.observe(element)') < js.index("element.classList.add('is-pending')") < js.index("root.classList.add('motion-ready')"))
+          js.index('revealTriggers.set(trigger, element)') < js.index('revealObserver.observe(trigger)') <
+          js.index("element.classList.add('is-pending')") < js.index("root.classList.add('motion-ready')"))
     check('Explicit reduced motion', '@media (prefers-reduced-motion: reduce)' in css and 'scroll-behavior: auto' in css)
-    check('No heavy scroll listener', "addEventListener('scroll'" not in js)
+    check('No scroll-driven animation loop; debounced skip safety only',
+          js.count("addEventListener('scroll'") <= 1 and
+          ("addEventListener('scroll'" not in js or 'setTimeout(resolvePassed, 140)' in js) and
+          'requestAnimationFrame' not in js)
     check('No production debug logging', not re.search(r'\b(?:console\.(?:log|debug)|debugger)\b', js))
     check('No source maps or editor artifacts',
           not any(ROOT.rglob('*.map')) and

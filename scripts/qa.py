@@ -71,10 +71,13 @@ def suite():
                 layout = inspect(browser)
                 layout['page'] = page
                 layouts.append(layout)
-                check(f'{page} {width}: no horizontal overflow', browser.evaluate('document.documentElement.scrollWidth <= document.documentElement.clientWidth'))
+                overflow = browser.evaluate('({scrollWidth:document.documentElement.scrollWidth,clientWidth:document.documentElement.clientWidth})')
+                check(f'{page} {width}: no horizontal overflow', overflow['scrollWidth'] <= overflow['clientWidth'],
+                      overflow if overflow['scrollWidth'] > overflow['clientWidth'] else None)
                 check(f'{page} {width}: content visible', layout['hiddenSections'] == 0)
                 check(f'{page} {width}: single H1', len([h for h in layout['headings'] if h['tag'] == 'H1']) == 1)
-                check(f'{page} {width}: no clipped controls', browser.evaluate("""[...document.querySelectorAll('a,button,input,textarea')].filter(e=>e.getClientRects().length && !e.classList.contains('skip-link')).every(e=>{const r=e.getBoundingClientRect(); return r.left>=-1 && r.right<=document.documentElement.clientWidth+1;})"""))
+                clipped = browser.evaluate("""[...document.querySelectorAll('a,button,input,textarea')].filter(e=>e.getClientRects().length && !e.classList.contains('skip-link')).map(e=>{const r=e.getBoundingClientRect();return {label:(e.getAttribute('aria-label')||e.textContent||'').trim().slice(0,65),left:r.left,right:r.right,ancestor:e.closest('[data-motion]')?.getAttribute('data-motion')}}).filter(e=>e.left < -1 || e.right > document.documentElement.clientWidth+1)""")
+                check(f'{page} {width}: no clipped controls', not clipped, clipped or None)
                 if width in (320, 390):
                     check(f'{page} {width}: visible targets meet WCAG 2.2 minimum size',
                           browser.evaluate("""[...document.querySelectorAll('a,button,input,textarea')].filter(e=>e.getClientRects().length && !e.classList.contains('skip-link')).every(e=>{const r=e.getBoundingClientRect();return r.width>=24 && r.height>=24;})"""),
